@@ -26,6 +26,23 @@
     return el.closest(INTERACTIVE_ANCESTOR_SELECTOR) != null;
   }
 
+  // Selector matching ephemeral popup containers (menus, dialogs, tooltips,
+  // listboxes, etc.). UI frameworks (Fluent UI / ADO Bolt, MUI, Radix, Headless
+  // UI, etc.) portal these into <body> and dismiss them on any unexpected DOM
+  // mutation under the open container. Wrapping a candidate inside one of these
+  // (e.g. a bolt-coin <img> inside a [role="menu"] callout) inserts a <span>
+  // wrapper that trips the framework's dismiss-on-mutation logic, so the menu
+  // closes immediately after opening. Skip the whole subtree.
+  var EPHEMERAL_CONTAINER_SELECTOR =
+    '[role="menu"], [role="listbox"], [role="dialog"], [role="alertdialog"], ' +
+    '[role="tooltip"], [role="combobox"], [role="tree"], [role="grid"], ' +
+    '[aria-modal="true"]';
+
+  function isInsideEphemeralContainer(el) {
+    if (!el || !el.closest) return false;
+    return el.closest(EPHEMERAL_CONTAINER_SELECTOR) != null;
+  }
+
   var KNOWN_DIAGRAM_TYPES = [
     'flowchart', 'sequence', 'classDiagram', 'stateDiagram',
     'gantt', 'pie', 'er', 'journey', 'gitGraph',
@@ -100,6 +117,7 @@
     function addResult(svg, tier) {
       if (seen.has(svg)) return;
       if (isInsideInteractive(svg)) return;
+      if (isInsideEphemeralContainer(svg)) return;
       if (!passesAreaThreshold(svg, thresholds.minDiagramArea)) return;
       seen.add(svg);
       results.push({
@@ -165,6 +183,7 @@
     document.querySelectorAll('.mermaid').forEach(function (el) {
       if (!el.shadowRoot) return;
       if (isInsideInteractive(el)) return;
+      if (isInsideEphemeralContainer(el)) return;
       var svg = el.shadowRoot.querySelector('svg');
       if (!svg) return;
       if (seen.has(svg)) return;
@@ -208,6 +227,10 @@
       if (img.closest && img.closest('[data-expand]')) continue;
       // Skip images that live inside interactive controls (button, link, etc.)
       if (isInsideInteractive(img)) continue;
+      // Skip images inside ephemeral popup containers (menu, dialog, tooltip,
+      // etc.). Wrapping them mid-open trips the framework's dismiss-on-mutation
+      // logic and closes the popup. See fix/skip-ephemeral-popup-containers.
+      if (isInsideEphemeralContainer(img)) continue;
       // Skip images that haven't loaded or are below size threshold
       if (!img.complete || !img.naturalWidth) continue;
       if (img.naturalWidth < minImageSize || img.naturalHeight < minImageSize) continue;
@@ -255,6 +278,8 @@
       if (svg.closest && svg.closest('[data-expand]')) continue;
       // Skip SVGs that live inside interactive controls (icon buttons, etc.)
       if (isInsideInteractive(svg)) continue;
+      // Skip SVGs inside ephemeral popup containers (menu, dialog, tooltip, ...)
+      if (isInsideEphemeralContainer(svg)) continue;
       // Skip nested SVGs inside other SVGs
       if (svg.parentElement && svg.parentElement.closest && svg.parentElement.closest('svg')) continue;
       // Skip SVGs already detected as Mermaid diagrams (have activation button in container)
@@ -302,6 +327,8 @@
       if (table.closest && table.closest('[data-expand]')) continue;
       // Skip tables that live inside interactive controls (link, button, etc.)
       if (isInsideInteractive(table)) continue;
+      // Skip tables inside ephemeral popup containers (menu, dialog, tooltip, ...)
+      if (isInsideEphemeralContainer(table)) continue;
       // Skip invisible tables
       if (!table.offsetWidth && !table.offsetHeight) continue;
       // Skip if already wrapped
@@ -333,6 +360,11 @@
     diagrams.forEach(function (diagram) {
       if (!passesDiagramThreshold(diagram, thresholds)) return;
       var container = diagram.container;
+      // Defensive: never inject inside an interactive or ephemeral popup ancestor.
+      // (The scan paths already filter these out, but a misclassified diagram
+      // container could still slip through.)
+      if (isInsideInteractive(container)) return;
+      if (isInsideEphemeralContainer(container)) return;
       // Skip if already has an activation button
       if (container.querySelector('.expand-activation-btn')) return;
 
@@ -465,6 +497,8 @@
 
       // Defensive: never inject inside an interactive ancestor
       if (isInsideInteractive(container)) return;
+      // Defensive: never inject inside an ephemeral popup container either
+      if (isInsideEphemeralContainer(container)) return;
 
       // Skip if already has an activation button
       if (container.querySelector('.expand-activation-btn')) return;
@@ -521,6 +555,7 @@
     listenForViewscreenDiagrams: listenForViewscreenDiagrams,
     requestViewscreenSvgs: requestViewscreenSvgs,
     isInsideInteractive: isInsideInteractive,
+    isInsideEphemeralContainer: isInsideEphemeralContainer,
     KNOWN_DIAGRAM_TYPES: KNOWN_DIAGRAM_TYPES,
     DEFAULT_MIN_IMG_SIZE: DEFAULT_MIN_IMG_SIZE,
     DEFAULT_MIN_SVG_AREA: DEFAULT_MIN_SVG_AREA,
