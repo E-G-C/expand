@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic Content Test</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    button { padding: 8px 16px; margin: 10px 0; cursor: pointer; }
+    #container { border: 1px dashed #ccc; padding: 20px; margin-top: 10px; min-height: 100px; }
+  </style>
+</head>
+<body>
+  <h1>Dynamic Content Injection Test</h1>
+  <p>Click the button to inject a Mermaid SVG dynamically. The extension should detect it and add an activation button.</p>
+  <button id="inject-btn" type="button">Inject Mermaid Diagram</button>
+  <button id="remove-btn" type="button">Remove All Diagrams</button>
+  <div id="container"></div>
+
+  <script>
+    var counter = 0;
+    document.getElementById('inject-btn').addEventListener('click', function () {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.innerHTML = '<svg id="mermaid-dynamic-' + counter + '" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg" aria-roledescription="flowchart">' +
+        '<rect x="10" y="10" width="280" height="130" fill="#e8f4e8" rx="5"/>' +
+        '<text x="150" y="80" text-anchor="middle" font-family="sans-serif">Dynamic #' + counter + '</text>' +
+        '</svg>';
+      document.getElementById('container').appendChild(div);
+      counter++;
+    });
+    document.getElementById('remove-btn').addEventListener('click', function () {
+      document.getElementById('container').innerHTML = '';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Image Support Test</title>
+<style>
+  body { font-family: sans-serif; max-width: 900px; margin: 2em auto; }
+  h2 { margin-top: 2em; border-bottom: 1px solid #ccc; padding-bottom: 0.3em; }
+  .gallery { display: flex; gap: 1em; flex-wrap: wrap; }
+  figure { margin: 0; }
+</style>
+</head>
+<body>
+  <h1>Image Support Test</h1>
+  <p>Expand buttons should appear on large images (&ge; 64&times;64) but NOT on small icons or tracking pixels.</p>
+
+  <h2>Large images (should get expand button)</h2>
+  <div class="gallery">
+    <figure>
+      <img width="300" height="200" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%234a90d9' width='300' height='200'/%3E%3Ctext x='150' y='105' text-anchor='middle' fill='white' font-size='20'%3E300x200 Blue%3C/text%3E%3C/svg%3E" alt="300x200 blue rectangle">
+      <figcaption>300&times;200 image</figcaption>
+    </figure>
+    <figure>
+      <img width="200" height="200" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23d94a4a' width='200' height='200'/%3E%3Ctext x='100' y='105' text-anchor='middle' fill='white' font-size='18'%3E200x200 Red%3C/text%3E%3C/svg%3E" alt="200x200 red square">
+      <figcaption>200&times;200 image</figcaption>
+    </figure>
+    <figure>
+      <img width="400" height="100" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='100'%3E%3Crect fill='%234ad94a' width='400' height='100'/%3E%3Ctext x='200' y='55' text-anchor='middle' fill='white' font-size='18'%3E400x100 Green%3C/text%3E%3C/svg%3E" alt="400x100 green banner">
+      <figcaption>400&times;100 image</figcaption>
+    </figure>
+  </div>
+
+  <h2>Small icon (should NOT get expand button)</h2>
+  <p>
+    <img width="32" height="32" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Crect fill='%23999' width='32' height='32' rx='4'/%3E%3Ctext x='16' y='20' text-anchor='middle' fill='white' font-size='10'%3Eico%3C/text%3E%3C/svg%3E" alt="small icon">
+    This 32&times;32 icon is too small.
+  </p>
+
+  <h2>Tracking pixel (should NOT get expand button)</h2>
+  <img width="1" height="1" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="tracking pixel" style="opacity:0;">
+
+  <h2>Multiple images in one container</h2>
+  <div class="gallery">
+    <img width="150" height="100" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='100'%3E%3Crect fill='%23e8a030' width='150' height='100'/%3E%3Ctext x='75' y='55' text-anchor='middle' fill='white' font-size='14'%3EOrange%3C/text%3E%3C/svg%3E" alt="orange">
+    <img width="150" height="100" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='100'%3E%3Crect fill='%239040d0' width='150' height='100'/%3E%3Ctext x='75' y='55' text-anchor='middle' fill='white' font-size='14'%3EPurple%3C/text%3E%3C/svg%3E" alt="purple">
+    <img width="150" height="100" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='100'%3E%3Crect fill='%2340c0c0' width='150' height='100'/%3E%3Ctext x='75' y='55' text-anchor='middle' fill='white' font-size='14'%3ETeal%3C/text%3E%3C/svg%3E" alt="teal">
+  </div>
+
+  <h2>Coexistence with Mermaid diagram</h2>
+  <div class="mermaid">
+    <svg id="mermaid-0" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" aria-roledescription="flowchart">
+      <style>.node rect { fill: #e8e8ff; stroke: #6666cc; }</style>
+      <g class="flowchart">
+        <g class="node"><rect x="50" y="30" width="120" height="40" rx="5"/><text x="110" y="55" text-anchor="middle">Start</text></g>
+        <g class="node"><rect x="50" y="120" width="120" height="40" rx="5"/><text x="110" y="145" text-anchor="middle">End</text></g>
+        <g class="edgePaths"><path d="M110,70 L110,120" fill="none" stroke="#333"/></g>
+      </g>
+    </svg>
+  </div>
+  <p>The Mermaid diagram above should also get its own expand button (SVG type).</p>
+
+  <h2>Dynamically added image</h2>
+  <button id="add-img-btn" type="button">Add image dynamically</button>
+  <div id="dynamic-target"></div>
+  <script>
+    document.getElementById('add-img-btn').addEventListener('click', function () {
+      var img = document.createElement('img');
+      img.width = 250;
+      img.height = 150;
+      img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='150'%3E%3Crect fill='%23ff6699' width='250' height='150'/%3E%3Ctext x='125' y='80' text-anchor='middle' fill='white' font-size='16'%3EDynamic!%3C/text%3E%3C/svg%3E";
+      img.alt = 'dynamically added';
+      document.getElementById('dynamic-target').appendChild(img);
+    });
+  </script>
+</body>
+</html>

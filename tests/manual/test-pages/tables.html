@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Table Support Test</title>
+<style>
+  body { font-family: sans-serif; max-width: 900px; margin: 2em auto; }
+  h2 { margin-top: 2em; border-bottom: 1px solid #ccc; padding-bottom: 0.3em; }
+  table { border-collapse: collapse; margin: 1em 0; }
+  th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+  th { background: #f0f0f0; font-weight: 600; }
+  tr:nth-child(even) { background: #fafafa; }
+  .wide-table { display: block; overflow-x: auto; }
+</style>
+</head>
+<body>
+  <h1>Table Support Test</h1>
+  <p>Expand buttons should appear on all visible tables when hovered.</p>
+
+  <h2>Basic styled table</h2>
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>Status</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>SVG Diagrams</td><td>Supported</td><td>All Mermaid types</td></tr>
+      <tr><td>Images</td><td>Supported</td><td>Min 64&times;64</td></tr>
+      <tr><td>Tables</td><td>Supported</td><td>Copy as HTML, PNG, JSON</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Wide table (many columns)</h2>
+  <div class="wide-table">
+    <table>
+      <thead>
+        <tr><th>Col A</th><th>Col B</th><th>Col C</th><th>Col D</th><th>Col E</th><th>Col F</th><th>Col G</th><th>Col H</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
+        <tr><td>alpha</td><td>beta</td><td>gamma</td><td>delta</td><td>epsilon</td><td>zeta</td><td>eta</td><td>theta</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Table without thead</h2>
+  <table>
+    <tr><td>Row 1, Cell 1</td><td>Row 1, Cell 2</td></tr>
+    <tr><td>Row 2, Cell 1</td><td>Row 2, Cell 2</td></tr>
+    <tr><td>Row 3, Cell 1</td><td>Row 3, Cell 2</td></tr>
+  </table>
+
+  <h2>Coexistence with Mermaid diagram</h2>
+  <div class="mermaid">
+    <svg id="mermaid-0" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" aria-roledescription="flowchart">
+      <style>.node rect { fill: #e8e8ff; stroke: #6666cc; }</style>
+      <g class="flowchart">
+        <g class="node"><rect x="50" y="30" width="120" height="40" rx="5"/><text x="110" y="55" text-anchor="middle">Start</text></g>
+        <g class="node"><rect x="50" y="120" width="120" height="40" rx="5"/><text x="110" y="145" text-anchor="middle">End</text></g>
+        <g class="edgePaths"><path d="M110,70 L110,120" fill="none" stroke="#333"/></g>
+      </g>
+    </svg>
+  </div>
+  <p>The Mermaid diagram above should get its own expand button (SVG type).</p>
+
+  <h2>Dynamically added table</h2>
+  <button id="add-table-btn" type="button">Add table dynamically</button>
+  <div id="dynamic-target"></div>
+  <script>
+    document.getElementById('add-table-btn').addEventListener('click', function () {
+      var table = document.createElement('table');
+      table.innerHTML = '<thead><tr><th>Dynamic</th><th>Table</th></tr></thead>' +
+        '<tbody><tr><td>Cell 1</td><td>Cell 2</td></tr><tr><td>Cell 3</td><td>Cell 4</td></tr></tbody>';
+      table.style.borderCollapse = 'collapse';
+      var cells = table.querySelectorAll('th, td');
+      for (var i = 0; i < cells.length; i++) {
+        cells[i].style.border = '1px solid #ccc';
+        cells[i].style.padding = '8px 12px';
+      }
+      document.getElementById('dynamic-target').appendChild(table);
+    });
+  </script>
+</body>
+</html>

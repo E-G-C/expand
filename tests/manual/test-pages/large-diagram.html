@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Large Diagram Test</title></head>
+<body>
+  <h1>Large Diagram (Zoom/Pan Testing)</h1>
+  <div class="mermaid">
+    <svg id="mermaid-0" viewBox="0 0 2000 1500" xmlns="http://www.w3.org/2000/svg" aria-roledescription="flowchart">
+      <style>
+        .box { fill: #e8e8ff; stroke: #6666cc; stroke-width: 2; }
+        .link { stroke: #333; stroke-width: 1.5; fill: none; }
+        text { font-family: sans-serif; font-size: 14px; }
+      </style>
+      <g class="flowchart">
+        <rect class="box" x="50" y="50" width="150" height="60" rx="5"/><text x="125" y="85" text-anchor="middle">Module A</text>
+        <rect class="box" x="300" y="50" width="150" height="60" rx="5"/><text x="375" y="85" text-anchor="middle">Module B</text>
+        <rect class="box" x="550" y="50" width="150" height="60" rx="5"/><text x="625" y="85" text-anchor="middle">Module C</text>
+        <rect class="box" x="800" y="50" width="150" height="60" rx="5"/><text x="875" y="85" text-anchor="middle">Module D</text>
+        <rect class="box" x="50" y="200" width="150" height="60" rx="5"/><text x="125" y="235" text-anchor="middle">Service 1</text>
+        <rect class="box" x="300" y="200" width="150" height="60" rx="5"/><text x="375" y="235" text-anchor="middle">Service 2</text>
+        <rect class="box" x="550" y="200" width="150" height="60" rx="5"/><text x="625" y="235" text-anchor="middle">Service 3</text>
+        <rect class="box" x="800" y="200" width="150" height="60" rx="5"/><text x="875" y="235" text-anchor="middle">Service 4</text>
+        <rect class="box" x="50" y="400" width="900" height="400" rx="5" fill="#f8f8ff"/>
+        <text x="500" y="600" text-anchor="middle" font-size="24">Large Content Area — scroll and zoom to test</text>
+        <rect class="box" x="100" y="900" width="800" height="200" rx="5" fill="#fff0f0"/>
+        <text x="500" y="1010" text-anchor="middle" font-size="18">Database Layer</text>
+        <rect class="box" x="100" y="1200" width="800" height="200" rx="5" fill="#f0fff0"/>
+        <text x="500" y="1310" text-anchor="middle" font-size="18">External APIs</text>
+        <path class="link" d="M125,110 L125,200"/>
+        <path class="link" d="M375,110 L375,200"/>
+        <path class="link" d="M625,110 L625,200"/>
+        <path class="link" d="M875,110 L875,200"/>
+      </g>
+    </svg>
+  </div>
+</body>
+</html>

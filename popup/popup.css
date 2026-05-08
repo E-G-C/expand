@@ -1,0 +1,171 @@
+body {
+  margin: 0;
+  padding: 12px 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  width: 260px;
+  color: #1a1a1a;
+  background: #fff;
+}
+
+h1 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.mview-popup-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.mview-popup-section + .mview-popup-section {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.mview-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  cursor: pointer;
+}
+
+.mview-toggle + .mview-toggle,
+.mview-number + .mview-toggle,
+.mview-range + .mview-toggle {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.mview-toggle-label {
+  flex: 1;
+}
+
+.mview-toggle input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.mview-range {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  cursor: default;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.mview-popup-section.is-disabled {
+  opacity: 0.48;
+}
+
+.mview-popup-section.is-disabled .mview-toggle,
+.mview-popup-section.is-disabled .mview-range,
+.mview-popup-section.is-disabled .mview-number {
+  cursor: default;
+}
+
+.mview-popup-section.is-disabled input {
+  cursor: not-allowed;
+}
+
+.mview-range.is-disabled,
+.mview-number.is-disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.mview-range.is-disabled input,
+.mview-number.is-disabled input {
+  cursor: not-allowed;
+}
+
+.mview-range-label {
+  flex: 1;
+  font-size: 12px;
+}
+
+.mview-range input[type="range"] {
+  width: 80px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.mview-number {
+  display: grid;
+  grid-template-columns: 1fr 68px 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.mview-number-label {
+  font-size: 12px;
+}
+
+.mview-number input[type="number"] {
+  width: 68px;
+  box-sizing: border-box;
+  padding: 3px 5px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 4px;
+  font: inherit;
+  text-align: right;
+  background: #fff;
+  color: #1a1a1a;
+}
+
+.mview-number-unit {
+  font-size: 11px;
+  color: #777;
+}
+
+.mview-hint {
+  margin: 10px 0 0 0;
+  font-size: 11px;
+  color: #888;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #1e1e1e;
+    color: #e6e6e6;
+  }
+
+  h1 {
+    color: #ccc;
+  }
+
+  .mview-toggle + .mview-toggle,
+  .mview-number + .mview-toggle,
+  .mview-range + .mview-toggle {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .mview-range,
+  .mview-number {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .mview-number input[type="number"] {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: #252525;
+    color: #e6e6e6;
+  }
+
+  .mview-number-unit {
+    color: #888;
+  }
+
+  .mview-popup-section + .mview-popup-section {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .mview-hint {
+    color: #666;
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Expand",
+  "version": "0.1.0",
+  "description": "View diagrams, images, and tables in a full-screen lightbox with zoom, pan, and export.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": ["activeTab", "storage"],
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/shadow-accessor.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "content/viewport.js",
+        "content/theme.js",
+        "content/settings.js",
+        "content/detector.js",
+        "content/toolbar.js",
+        "content/export.js",
+        "content/lightbox.js"
+      ],
+      "css": ["styles/lightbox.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://viewscreen.githubusercontent.com/*"],
+      "all_frames": true,
+      "js": ["content/viewscreen-bridge.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "expand@browser-extension"
+    }
+  }
+}

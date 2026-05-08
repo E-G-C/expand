@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="tile" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#3a7bc8"/>
+      <stop offset="100%" stop-color="#1f4f8f"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"  stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Brand tile -->
+  <rect x="4" y="4" width="120" height="120" rx="22" ry="22" fill="url(#tile)"/>
+  <rect x="4" y="4" width="120" height="120" rx="22" ry="22" fill="url(#sheen)"/>
+
+  <!-- Expand glyph: four corner arrows pointing outward.
+       Bold strokes so the mark survives at 16x16. -->
+  <g fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top-left -->
+    <polyline points="44,28 28,28 28,44"/>
+    <line x1="28" y1="28" x2="54" y2="54"/>
+    <!-- Top-right -->
+    <polyline points="84,28 100,28 100,44"/>
+    <line x1="100" y1="28" x2="74" y2="54"/>
+    <!-- Bottom-left -->
+    <polyline points="44,100 28,100 28,84"/>
+    <line x1="28" y1="100" x2="54" y2="74"/>
+    <!-- Bottom-right -->
+    <polyline points="84,100 100,100 100,84"/>
+    <line x1="100" y1="100" x2="74" y2="74"/>
+  </g>
+</svg>

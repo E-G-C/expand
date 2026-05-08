@@ -1,0 +1,126 @@
+name: Release Edge Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to package, for example v1.2.3'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: edge-release-${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  package-edge:
+    name: Package Edge extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Derive release version
+        id: version
+        env:
+          TAG_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          version="${TAG_NAME#v}"
+          semver_core='^(0|[1-9][0-9]*)\.([0-9]|[1-9][0-9]*)\.([0-9]|[1-9][0-9]*)$'
+
+          if [[ "$TAG_NAME" != v* || ! "$version" =~ $semver_core ]]; then
+            echo "Release tags must use vMAJOR.MINOR.PATCH, for example v1.2.3." >&2
+            exit 1
+          fi
+
+          IFS='.' read -r major minor patch <<< "$version"
+          for part in "$major" "$minor" "$patch"; do
+            if (( part > 65535 )); then
+              echo "Edge manifest version segment '$part' must be 65535 or lower." >&2
+              exit 1
+            fi
+          done
+
+          echo "tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Run tests
+        run: npm test
+
+      - name: Normalize package version from tag
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: npm version "$VERSION" --no-git-tag-version --allow-same-version
+
+      - name: Package Edge zip
+        id: package
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          zip_path="dist/expand-edge-${VERSION}.zip"
+          npm run package:edge -- --version "$VERSION" --output "$zip_path"
+
+          echo "zip_path=$zip_path" >> "$GITHUB_OUTPUT"
+          echo "zip_name=$(basename "$zip_path")" >> "$GITHUB_OUTPUT"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.zip_name }}
+          path: ${{ steps.package.outputs.zip_path }}
+          if-no-files-found: error
+
+      - name: Publish GitHub Release asset
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+          ZIP_PATH: ${{ steps.package.outputs.zip_path }}
+        run: |
+          set -euo pipefail
+
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$ZIP_PATH" --clobber
+          else
+            gh release create "$RELEASE_TAG" "$ZIP_PATH" \
+              --title "Expand ${RELEASE_VERSION}" \
+              --generate-notes
+          fi
+
+      - name: Record Edge publishing placeholders
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Edge Add-ons publishing placeholders
+
+          The workflow currently publishes a GitHub Release zip for manual Edge Add-ons upload. Before adding automated store submission, configure and document these repository secrets or environment variables:
+
+          - EDGE_ADDONS_PRODUCT_ID
+          - EDGE_ADDONS_CLIENT_ID
+          - EDGE_ADDONS_CLIENT_SECRET
+          - EDGE_ADDONS_TENANT_ID, if your Edge Add-ons API auth flow requires it
+          - EDGE_ADDONS_SUBMIT_FOR_REVIEW, if automatic submission should be gated separately from upload
+          EOF

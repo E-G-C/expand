@@ -1,0 +1,30 @@
+{
+  "name": "mview",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "package:edge": "node scripts/package-extension.mjs --target edge",
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/E-G-C/expand.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/E-G-C/expand/issues"
+  },
+  "homepage": "https://github.com/E-G-C/expand#readme",
+  "devDependencies": {
+    "jsdom": "^28.0.0",
+    "vitest": "^4.0.18"
+  }
+}
