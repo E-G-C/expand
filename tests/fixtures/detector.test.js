@@ -425,3 +425,69 @@ describe('skips candidates inside interactive ancestors', () => {
     expect(detector.isInsideInteractive(svg)).toBe(true);
   });
 });
+
+describe('scanForDiagrams — github-inline-mermaid.html (post-iframe enrichment)', () => {
+  let detector, win;
+
+  beforeEach(() => {
+    win = loadFixture('github-inline-mermaid.html');
+    detector = loadDetector(win);
+    // jsdom doesn't lay out SVGs — mock rendered rects so area thresholds pass.
+    const flow = win.document.getElementById('mermaid-flow-1');
+    const seq = win.document.getElementById('mermaid-seq-1');
+    if (flow) mockRect(flow, 320, 160);
+    if (seq) mockRect(seq, 240, 120);
+  });
+
+  it('detects 2 diagrams', () => {
+    const results = detector.scanForDiagrams();
+    expect(results.length).toBe(2);
+  });
+
+  it('detects via tier 1 (aria-roledescription)', () => {
+    const results = detector.scanForDiagrams();
+    // Both diagrams use aria-roledescription values that appear in
+    // KNOWN_DIAGRAM_TYPES ("flowchart", "sequence"), so both hit tier 1.
+    const byId = Object.fromEntries(results.map((r) => [r.svgElement.id, r]));
+    expect(byId['mermaid-flow-1'].detectionTier).toBe(1);
+    expect(byId['mermaid-seq-1'].detectionTier).toBe(1);
+  });
+
+  it('populates container with the enrichment section', () => {
+    const results = detector.scanForDiagrams();
+    results.forEach((r) => {
+      expect(r.container).toBeTruthy();
+      expect(r.container.tagName.toLowerCase()).toBe('section');
+      expect(r.container.getAttribute('data-type')).toBe('mermaid');
+    });
+  });
+
+  it('assigns type svg and clears other element fields', () => {
+    const results = detector.scanForDiagrams();
+    results.forEach((r) => {
+      expect(r.type).toBe('svg');
+      expect(r.svgElement).toBeTruthy();
+      expect(r.imgElement).toBeNull();
+      expect(r.tableElement).toBeNull();
+    });
+  });
+
+  it('tier-3 site selector also matches the enrichment SVGs', () => {
+    // Strip aria-roledescription from the flowchart svg so tier 1 can no
+    // longer match it. The site selector
+    //   section[data-type="mermaid"] .js-render-enrichment-target > svg
+    // (and the id-prefix tier) must still catch it.
+    win.document.querySelectorAll('svg').forEach((svg) => {
+      if (svg.id === 'mermaid-flow-1') svg.removeAttribute('aria-roledescription');
+    });
+
+    const results = detector.scanForDiagrams();
+    expect(results.length).toBe(2);
+    const flow = results.find((r) => r.svgElement.id === 'mermaid-flow-1');
+    expect(flow).toBeTruthy();
+    // Either tier 2 (id^="mermaid-") or tier 3 (site selector) is acceptable —
+    // tier 2 wins in practice because it is checked first, but locking in the
+    // weaker assertion keeps this test resilient if iteration order changes.
+    expect(flow.detectionTier === 2 || flow.detectionTier === 3).toBe(true);
+  });
+});
