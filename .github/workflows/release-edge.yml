@@ -124,3 +124,69 @@ jobs:
           - EDGE_ADDONS_TENANT_ID, if your Edge Add-ons API auth flow requires it
           - EDGE_ADDONS_SUBMIT_FOR_REVIEW, if automatic submission should be gated separately from upload
           EOF
+
+  version-writeback:
+    name: Write version back to main
+    needs: package-edge
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Derive version from tag
+        id: version
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          version="${TAG_NAME#v}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Update package.json and package-lock.json
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: npm version "$VERSION" --no-git-tag-version --allow-same-version
+
+      - name: Update manifest.json
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          node -e "
+            const fs = require('fs');
+            const m = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+            m.version = process.env.VERSION;
+            fs.writeFileSync('manifest.json', JSON.stringify(m, null, 2) + '\n');
+          "
+
+      - name: Commit and push version sync
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json manifest.json
+          if git diff --cached --quiet; then
+            echo "No version change to commit."
+          else
+            git commit -m "chore: sync version to $VERSION"
+            git push origin main
+          fi
