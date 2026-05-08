@@ -491,3 +491,140 @@ describe('scanForDiagrams — github-inline-mermaid.html (post-iframe enrichment
     expect(flow.detectionTier === 2 || flow.detectionTier === 3).toBe(true);
   });
 });
+
+describe('skips candidates inside ephemeral popup containers (ADO Bolt callout regression)', () => {
+  let detector, win;
+
+  beforeEach(() => {
+    win = loadFixture('no-diagrams.html');
+    detector = loadDetector(win);
+    win.document.body.innerHTML = '';
+  });
+
+  function markImageLoaded(img, w, h) {
+    Object.defineProperty(img, 'complete', { value: true, writable: true });
+    Object.defineProperty(img, 'naturalWidth', { value: w, writable: true });
+    Object.defineProperty(img, 'naturalHeight', { value: h, writable: true });
+    Object.defineProperty(img, 'offsetWidth', { value: w, writable: true, configurable: true });
+    Object.defineProperty(img, 'offsetHeight', { value: h, writable: true, configurable: true });
+  }
+
+  it('exports the isInsideEphemeralContainer helper', () => {
+    expect(typeof detector.isInsideEphemeralContainer).toBe('function');
+  });
+
+  it('scanForImages skips a bolt-coin <img> inside a Bolt-style portaled callout (the ADO regression)', () => {
+    // Mirrors what the v0.0.4 release did on the ADO work-item page: when
+    // the "Ask Copilot" chevron opened the callout, the framework portaled
+    // a [role="menu"] subtree into <body>, our MutationObserver fired ~200ms
+    // later, scanForImages wrapped a `bolt-coin` <img> inside that subtree,
+    // and the wrapper insertion tripped Bolt's dismiss-on-mutation logic so
+    // the menu closed immediately. The fix is to skip the whole subtree.
+    win.document.body.innerHTML = `
+      <div class="bolt-callout" role="menu" id="ado-callout">
+        <ul>
+          <li role="menuitem">
+            Create a pull request with GitHub Copilot
+            <img id="coin-img" class="bolt-coin-content using-image size24" src="copilot.png" width="200" height="200" />
+          </li>
+        </ul>
+      </div>
+    `;
+    const img = win.document.getElementById('coin-img');
+    markImageLoaded(img, 200, 200);
+
+    const results = detector.scanForImages();
+    expect(results.length).toBe(0);
+    // Critical: the callout subtree must be untouched. A wrapper here is
+    // exactly what trips Bolt's dismiss-on-mutation.
+    expect(win.document.querySelector('[data-expand-img-wrap]')).toBeNull();
+    expect(img.parentElement.tagName.toLowerCase()).toBe('li');
+  });
+
+  it('scanForSvgs skips an <svg> inside [role="dialog"]', () => {
+    win.document.body.innerHTML = `
+      <div role="dialog" aria-modal="true" id="modal">
+        <svg id="dialog-svg" viewBox="0 0 200 200"><rect width="200" height="200"/></svg>
+      </div>
+    `;
+    const svg = win.document.getElementById('dialog-svg');
+    mockRect(svg, 200, 200);
+
+    const results = detector.scanForSvgs();
+    expect(results.length).toBe(0);
+    expect(win.document.querySelector('[data-expand-svg-wrap]')).toBeNull();
+  });
+
+  it('scanForSvgs skips an <svg> inside [role="tooltip"]', () => {
+    win.document.body.innerHTML = `
+      <div role="tooltip" id="tip">
+        <svg id="tip-svg" viewBox="0 0 200 200"><rect width="200" height="200"/></svg>
+      </div>
+    `;
+    const svg = win.document.getElementById('tip-svg');
+    mockRect(svg, 200, 200);
+
+    const results = detector.scanForSvgs();
+    expect(results.length).toBe(0);
+  });
+
+  it('scanForSvgs skips an <svg> inside [role="listbox"]', () => {
+    win.document.body.innerHTML = `
+      <div role="listbox" id="lb">
+        <div role="option"><svg id="opt-svg" viewBox="0 0 200 200"><rect width="200" height="200"/></svg></div>
+      </div>
+    `;
+    const svg = win.document.getElementById('opt-svg');
+    mockRect(svg, 200, 200);
+
+    const results = detector.scanForSvgs();
+    expect(results.length).toBe(0);
+  });
+
+  it('scanForTables skips a <table> inside [aria-modal="true"] (modal dialog)', () => {
+    win.document.body.innerHTML = `
+      <div aria-modal="true" id="amodal">
+        <table id="modal-table"><tr><td>cell</td></tr></table>
+      </div>
+    `;
+    const table = win.document.getElementById('modal-table');
+    Object.defineProperty(table, 'offsetWidth', { value: 400, writable: true, configurable: true });
+    Object.defineProperty(table, 'offsetHeight', { value: 200, writable: true, configurable: true });
+
+    const results = detector.scanForTables();
+    expect(results.length).toBe(0);
+    expect(win.document.querySelector('[data-expand-table-wrap]')).toBeNull();
+  });
+
+  it('scanForDiagrams skips a Mermaid SVG inside [role="dialog"]', () => {
+    win.document.body.innerHTML = `
+      <div role="dialog" id="d">
+        <svg id="dialog-mermaid" aria-roledescription="flowchart" viewBox="0 0 200 200">
+          <g class="flowchart"></g>
+        </svg>
+      </div>
+    `;
+    const svg = win.document.getElementById('dialog-mermaid');
+    mockRect(svg, 200, 200);
+
+    const results = detector.scanForDiagrams();
+    expect(results.length).toBe(0);
+    expect(detector.isInsideEphemeralContainer(svg)).toBe(true);
+  });
+
+  it('does NOT skip an <img> in regular page content (non-popup)', () => {
+    // Sanity check: the new selector must not over-match. An <img> inside
+    // an ordinary <article> with no popup role should still be wrapped.
+    win.document.body.innerHTML = `
+      <article id="content">
+        <img id="page-img" src="figure.png" width="400" height="300" />
+      </article>
+    `;
+    const img = win.document.getElementById('page-img');
+    markImageLoaded(img, 400, 300);
+
+    const results = detector.scanForImages();
+    expect(results.length).toBe(1);
+    expect(win.document.querySelector('[data-expand-img-wrap]')).not.toBeNull();
+  });
+});
