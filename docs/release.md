@@ -36,14 +36,3 @@ npm run package:edge -- --version 1.2.3 --output dist/expand-edge-1.2.3.zip
 
 The local package command stages an Edge-targeted manifest in the zip without changing the source `manifest.json`.
 
-## Edge Add-ons Placeholders
-
-The current workflow creates a GitHub Release asset for manual upload to Microsoft Edge Add-ons. Before adding automated Edge store submission, configure the publish path and store the required values as repository secrets or an environment-protected secret set:
-
-- `EDGE_ADDONS_PRODUCT_ID`: Edge Add-ons listing or product identifier
-- `EDGE_ADDONS_CLIENT_ID`: publishing API client or application identifier
-- `EDGE_ADDONS_CLIENT_SECRET`: publishing API secret
-- `EDGE_ADDONS_TENANT_ID`: tenant identifier, if required by the chosen auth flow
-- `EDGE_ADDONS_SUBMIT_FOR_REVIEW`: optional gate for upload-only versus submit-for-review behavior
-
-Do not weaken branch protection or broaden token permissions to publish. Add only the minimum permissions required by the chosen Edge Add-ons API integration.

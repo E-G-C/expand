@@ -50,9 +50,7 @@ Package the extension first (see below), then:
 2. Click the gear icon -> "Install Add-on From File..."
 3. Select the generated zip for that browser target
 
-**Microsoft Edge** uses the generated Edge zip for upload in Partner Center / Edge Add-ons. For local development, use "Load unpacked" from `edge://extensions/`.
 
-**Chrome** requires developer mode for local installation. Without it, the extension must be published to the Chrome Web Store.
 
 ### Packaging the zip
 
@@ -164,4 +162,4 @@ Expand does not collect, transmit, or share any data. See [PRIVACY.md](PRIVACY.m
 
 ## License
 
-ISC
+MIT
