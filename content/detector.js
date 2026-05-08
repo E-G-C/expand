@@ -10,6 +10,22 @@
   var DEFAULT_MIN_DIAGRAM_AREA = 0;
   var COMPACT_THRESHOLD = 120;
 
+  // Selector matching elements that are themselves interactive. Wrapping a
+  // candidate that lives inside one of these would (a) disrupt the host's
+  // layout and (b) produce nested <button> elements (invalid HTML5 that
+  // breaks click/focus on the outer control). See fix/skip-interactive-ancestors.
+  var INTERACTIVE_ANCESTOR_SELECTOR =
+    'a[href], button, summary, label, select, ' +
+    '[role="button"], [role="link"], [role="menuitem"], ' +
+    '[role="menuitemcheckbox"], [role="menuitemradio"], ' +
+    '[role="tab"], [role="option"], [role="checkbox"], [role="radio"], [role="switch"], ' +
+    '[contenteditable=""], [contenteditable="true"]';
+
+  function isInsideInteractive(el) {
+    if (!el || !el.closest) return false;
+    return el.closest(INTERACTIVE_ANCESTOR_SELECTOR) != null;
+  }
+
   var KNOWN_DIAGRAM_TYPES = [
     'flowchart', 'sequence', 'classDiagram', 'stateDiagram',
     'gantt', 'pie', 'er', 'journey', 'gitGraph',
@@ -83,6 +99,7 @@
 
     function addResult(svg, tier) {
       if (seen.has(svg)) return;
+      if (isInsideInteractive(svg)) return;
       if (!passesAreaThreshold(svg, thresholds.minDiagramArea)) return;
       seen.add(svg);
       results.push({
@@ -147,6 +164,7 @@
     // shadow-accessor.js forces open mode so we can reach inside.
     document.querySelectorAll('.mermaid').forEach(function (el) {
       if (!el.shadowRoot) return;
+      if (isInsideInteractive(el)) return;
       var svg = el.shadowRoot.querySelector('svg');
       if (!svg) return;
       if (seen.has(svg)) return;
@@ -188,6 +206,8 @@
       // Skip our own injected elements
       if (img.hasAttribute('data-expand')) continue;
       if (img.closest && img.closest('[data-expand]')) continue;
+      // Skip images that live inside interactive controls (button, link, etc.)
+      if (isInsideInteractive(img)) continue;
       // Skip images that haven't loaded or are below size threshold
       if (!img.complete || !img.naturalWidth) continue;
       if (img.naturalWidth < minImageSize || img.naturalHeight < minImageSize) continue;
@@ -233,6 +253,8 @@
       // Skip our own injected elements (toolbar icons, etc.)
       if (svg.hasAttribute('data-expand')) continue;
       if (svg.closest && svg.closest('[data-expand]')) continue;
+      // Skip SVGs that live inside interactive controls (icon buttons, etc.)
+      if (isInsideInteractive(svg)) continue;
       // Skip nested SVGs inside other SVGs
       if (svg.parentElement && svg.parentElement.closest && svg.parentElement.closest('svg')) continue;
       // Skip SVGs already detected as Mermaid diagrams (have activation button in container)
@@ -278,6 +300,8 @@
       // Skip our own injected elements
       if (table.hasAttribute('data-expand')) continue;
       if (table.closest && table.closest('[data-expand]')) continue;
+      // Skip tables that live inside interactive controls (link, button, etc.)
+      if (isInsideInteractive(table)) continue;
       // Skip invisible tables
       if (!table.offsetWidth && !table.offsetHeight) continue;
       // Skip if already wrapped
@@ -439,6 +463,9 @@
                       sourceFrame.parentElement;
       if (!container) return;
 
+      // Defensive: never inject inside an interactive ancestor
+      if (isInsideInteractive(container)) return;
+
       // Skip if already has an activation button
       if (container.querySelector('.expand-activation-btn')) return;
 
@@ -493,6 +520,7 @@
     cleanup: cleanup,
     listenForViewscreenDiagrams: listenForViewscreenDiagrams,
     requestViewscreenSvgs: requestViewscreenSvgs,
+    isInsideInteractive: isInsideInteractive,
     KNOWN_DIAGRAM_TYPES: KNOWN_DIAGRAM_TYPES,
     DEFAULT_MIN_IMG_SIZE: DEFAULT_MIN_IMG_SIZE,
     DEFAULT_MIN_SVG_AREA: DEFAULT_MIN_SVG_AREA,

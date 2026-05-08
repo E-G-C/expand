@@ -323,3 +323,105 @@ describe('scanForTables — tables.html', () => {
     expect(wrappers.length).toBe(first.length);
   });
 });
+
+describe('skips candidates inside interactive ancestors', () => {
+  let detector, win;
+
+  beforeEach(() => {
+    win = loadFixture('no-diagrams.html');
+    detector = loadDetector(win);
+    win.document.body.innerHTML = '';
+  });
+
+  function markImageLoaded(img, w, h) {
+    Object.defineProperty(img, 'complete', { value: true, writable: true });
+    Object.defineProperty(img, 'naturalWidth', { value: w, writable: true });
+    Object.defineProperty(img, 'naturalHeight', { value: h, writable: true });
+    Object.defineProperty(img, 'offsetWidth', { value: w, writable: true, configurable: true });
+    Object.defineProperty(img, 'offsetHeight', { value: h, writable: true, configurable: true });
+  }
+
+  it('exports the isInsideInteractive helper', () => {
+    expect(typeof detector.isInsideInteractive).toBe('function');
+  });
+
+  it('scanForImages skips an <img> inside a <button>', () => {
+    win.document.body.innerHTML = `
+      <button type="button" id="host-btn">
+        <img id="btn-img" src="icon.png" width="200" height="200" />
+      </button>
+    `;
+    const img = win.document.getElementById('btn-img');
+    markImageLoaded(img, 200, 200);
+
+    const results = detector.scanForImages();
+    expect(results.length).toBe(0);
+    // Host button must remain unwrapped
+    expect(win.document.querySelector('[data-expand-img-wrap]')).toBeNull();
+    expect(img.parentElement.id).toBe('host-btn');
+  });
+
+  it('scanForImages skips an <img> inside an element with role="button"', () => {
+    win.document.body.innerHTML = `
+      <div role="button" id="host-role-btn" tabindex="0">
+        <img id="role-img" src="icon.png" width="200" height="200" />
+      </div>
+    `;
+    const img = win.document.getElementById('role-img');
+    markImageLoaded(img, 200, 200);
+
+    const results = detector.scanForImages();
+    expect(results.length).toBe(0);
+    expect(win.document.querySelector('[data-expand-img-wrap]')).toBeNull();
+    expect(img.parentElement.id).toBe('host-role-btn');
+  });
+
+  it('scanForSvgs skips a generic <svg> inside an icon button (ADO Copilot pattern)', () => {
+    win.document.body.innerHTML = `
+      <button aria-label="Ask Copilot" class="bolt-icon-button" id="ask-copilot" role="menuitem" type="button">
+        <svg id="copilot-icon" viewBox="0 0 24 24"><path d="M0 0h24v24H0z"></path></svg>
+      </button>
+    `;
+    const svg = win.document.getElementById('copilot-icon');
+    mockRect(svg, 100, 100); // area = 10000, well above DEFAULT_MIN_SVG_AREA (2000)
+
+    const results = detector.scanForSvgs();
+    expect(results.length).toBe(0);
+    // Host button must remain unwrapped and the SVG still its direct child
+    expect(win.document.querySelector('[data-expand-svg-wrap]')).toBeNull();
+    expect(svg.parentElement.id).toBe('ask-copilot');
+  });
+
+  it('scanForTables skips a <table> inside an <a href="#">', () => {
+    win.document.body.innerHTML = `
+      <a href="#" id="host-link">
+        <table id="link-table"><tr><td>cell</td></tr></table>
+      </a>
+    `;
+    const table = win.document.getElementById('link-table');
+    Object.defineProperty(table, 'offsetWidth', { value: 400, writable: true, configurable: true });
+    Object.defineProperty(table, 'offsetHeight', { value: 200, writable: true, configurable: true });
+
+    const results = detector.scanForTables();
+    expect(results.length).toBe(0);
+    expect(win.document.querySelector('[data-expand-table-wrap]')).toBeNull();
+    expect(table.parentElement.id).toBe('host-link');
+  });
+
+  it('scanForDiagrams skips a Mermaid SVG inside an element with role="menuitem"', () => {
+    win.document.body.innerHTML = `
+      <div role="menuitem" id="host-menuitem" tabindex="0">
+        <svg id="menu-mermaid" aria-roledescription="flowchart" viewBox="0 0 200 200">
+          <g class="flowchart"></g>
+        </svg>
+      </div>
+    `;
+    const svg = win.document.getElementById('menu-mermaid');
+    mockRect(svg, 200, 200);
+
+    const results = detector.scanForDiagrams();
+    expect(results.length).toBe(0);
+    // Sanity: the helper agrees this SVG is inside an interactive ancestor
+    expect(detector.isInsideInteractive(svg)).toBe(true);
+  });
+});
