@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GitHub Inline Mermaid Fixture</title>
+</head>
+<body>
+  <article class="markdown-body">
+    <h1>README with inline Mermaid</h1>
+
+    <!-- Inline-rendered Mermaid (post-migration). Source <pre> sits next to the
+         enrichment section; the rendered <svg> is inserted directly into the
+         js-render-enrichment-target wrapper, no iframe involved. -->
+    <pre lang="mermaid"><code>flowchart LR
+    A --> B
+    B --> C</code></pre>
+    <section data-type="mermaid">
+      <div class="js-render-enrichment-target">
+        <svg id="mermaid-flow-1" aria-roledescription="flowchart"
+             role="graphics-document document"
+             viewBox="0 0 320 160" width="320" height="160"
+             xmlns="http://www.w3.org/2000/svg">
+          <g class="flowchart">
+            <g class="node"><rect x="10" y="10" width="60" height="40"/></g>
+            <g class="edgePaths"><path d="M70 30 L130 30"/></g>
+            <g class="node"><rect x="130" y="10" width="60" height="40"/></g>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- A second diagram of a different type to confirm we don't only match flowcharts -->
+    <pre lang="mermaid"><code>sequenceDiagram
+    Alice->>Bob: Hi</code></pre>
+    <section data-type="mermaid">
+      <div class="js-render-enrichment-target">
+        <svg id="mermaid-seq-1" aria-roledescription="sequence"
+             role="graphics-document document"
+             viewBox="0 0 240 120" width="240" height="120"
+             xmlns="http://www.w3.org/2000/svg">
+          <g class="sequence"><rect x="0" y="0" width="240" height="120"/></g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- An ordinary inline image and a regular paragraph to make sure detection
+         is targeted, not over-eager. -->
+    <p>Some prose between diagrams.</p>
+    <img src="screenshot.png" alt="" width="200" height="120">
+  </article>
+</body>
+</html>
