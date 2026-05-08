@@ -135,6 +135,6 @@
     module.exports = exports;
   }
   if (typeof window !== 'undefined') {
-    window.MViewViewport = exports;
+    window.ExpandViewport = exports;
   }
 })();

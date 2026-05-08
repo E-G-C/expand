@@ -155,12 +155,12 @@
       // Wrap host element for button placement — shadow DOM hides
       // light DOM children, so we need an outer container for the button.
       var container = el.parentElement;
-      if (container && container.hasAttribute('data-mview-shadow-wrap')) {
+      if (container && container.hasAttribute('data-expand-shadow-wrap')) {
         // Already wrapped from a previous scan
       } else {
         container = document.createElement('div');
-        container.setAttribute('data-mview-shadow-wrap', 'true');
-        container.setAttribute('data-mview', 'true');
+        container.setAttribute('data-expand-shadow-wrap', 'true');
+        container.setAttribute('data-expand', 'true');
         container.style.position = 'relative';
         el.parentNode.insertBefore(container, el);
         container.appendChild(el);
@@ -186,8 +186,8 @@
     for (var i = 0; i < imgs.length; i++) {
       var img = imgs[i];
       // Skip our own injected elements
-      if (img.hasAttribute('data-mview')) continue;
-      if (img.closest && img.closest('[data-mview]')) continue;
+      if (img.hasAttribute('data-expand')) continue;
+      if (img.closest && img.closest('[data-expand]')) continue;
       // Skip images that haven't loaded or are below size threshold
       if (!img.complete || !img.naturalWidth) continue;
       if (img.naturalWidth < minImageSize || img.naturalHeight < minImageSize) continue;
@@ -198,14 +198,14 @@
       if (!renderedWidth && !renderedHeight) continue;
       if (renderedWidth < minImageSize || renderedHeight < minImageSize) continue;
       // Skip if already wrapped
-      if (img.parentElement && img.parentElement.hasAttribute('data-mview-img-wrap')) continue;
+      if (img.parentElement && img.parentElement.hasAttribute('data-expand-img-wrap')) continue;
 
       var isCompact = renderedWidth < COMPACT_THRESHOLD || renderedHeight < COMPACT_THRESHOLD;
 
       var wrapper = document.createElement('span');
-      wrapper.setAttribute('data-mview', 'true');
-      wrapper.setAttribute('data-mview-img-wrap', 'true');
-      if (isCompact) wrapper.classList.add('mview-compact');
+      wrapper.setAttribute('data-expand', 'true');
+      wrapper.setAttribute('data-expand-img-wrap', 'true');
+      if (isCompact) wrapper.classList.add('expand-compact');
       wrapper.style.position = 'relative';
       wrapper.style.display = 'inline-block';
       img.parentNode.insertBefore(wrapper, img);
@@ -231,27 +231,27 @@
     for (var i = 0; i < svgs.length; i++) {
       var svg = svgs[i];
       // Skip our own injected elements (toolbar icons, etc.)
-      if (svg.hasAttribute('data-mview')) continue;
-      if (svg.closest && svg.closest('[data-mview]')) continue;
+      if (svg.hasAttribute('data-expand')) continue;
+      if (svg.closest && svg.closest('[data-expand]')) continue;
       // Skip nested SVGs inside other SVGs
       if (svg.parentElement && svg.parentElement.closest && svg.parentElement.closest('svg')) continue;
       // Skip SVGs already detected as Mermaid diagrams (have activation button in container)
       var parent = svg.parentElement;
-      if (parent && parent.querySelector && parent.querySelector('.mview-activation-btn')) continue;
+      if (parent && parent.querySelector && parent.querySelector('.expand-activation-btn')) continue;
       // Skip invisible/off-screen SVGs (use getBoundingClientRect — offsetWidth is unreliable for SVGElement)
       var rect = svg.getBoundingClientRect();
       if (!rect.width && !rect.height) continue;
       // Skip SVGs below size threshold (area-based to allow wide-but-short SVGs like sparklines)
       if (rect.width * rect.height < minSvgArea) continue;
       // Skip if already wrapped
-      if (parent && parent.hasAttribute('data-mview-svg-wrap')) continue;
+      if (parent && parent.hasAttribute('data-expand-svg-wrap')) continue;
 
       var isCompact = rect.width < COMPACT_THRESHOLD || rect.height < COMPACT_THRESHOLD;
 
       var wrapper = document.createElement('span');
-      wrapper.setAttribute('data-mview', 'true');
-      wrapper.setAttribute('data-mview-svg-wrap', 'true');
-      if (isCompact) wrapper.classList.add('mview-compact');
+      wrapper.setAttribute('data-expand', 'true');
+      wrapper.setAttribute('data-expand-svg-wrap', 'true');
+      if (isCompact) wrapper.classList.add('expand-compact');
       wrapper.style.position = 'relative';
       wrapper.style.display = 'inline-block';
       svg.parentNode.insertBefore(wrapper, svg);
@@ -276,16 +276,16 @@
     for (var i = 0; i < tables.length; i++) {
       var table = tables[i];
       // Skip our own injected elements
-      if (table.hasAttribute('data-mview')) continue;
-      if (table.closest && table.closest('[data-mview]')) continue;
+      if (table.hasAttribute('data-expand')) continue;
+      if (table.closest && table.closest('[data-expand]')) continue;
       // Skip invisible tables
       if (!table.offsetWidth && !table.offsetHeight) continue;
       // Skip if already wrapped
-      if (table.parentElement && table.parentElement.hasAttribute('data-mview-table-wrap')) continue;
+      if (table.parentElement && table.parentElement.hasAttribute('data-expand-table-wrap')) continue;
 
       var wrapper = document.createElement('div');
-      wrapper.setAttribute('data-mview', 'true');
-      wrapper.setAttribute('data-mview-table-wrap', 'true');
+      wrapper.setAttribute('data-expand', 'true');
+      wrapper.setAttribute('data-expand-table-wrap', 'true');
       wrapper.style.position = 'relative';
       table.parentNode.insertBefore(wrapper, table);
       wrapper.appendChild(table);
@@ -310,7 +310,7 @@
       if (!passesDiagramThreshold(diagram, thresholds)) return;
       var container = diagram.container;
       // Skip if already has an activation button
-      if (container.querySelector('.mview-activation-btn')) return;
+      if (container.querySelector('.expand-activation-btn')) return;
 
       // Ensure container is positioned for absolute button placement
       var pos = window.getComputedStyle(container).position;
@@ -320,12 +320,12 @@
 
       // Use compact button for small containers
       if (container.offsetWidth < COMPACT_THRESHOLD || container.offsetHeight < COMPACT_THRESHOLD) {
-        container.classList.add('mview-compact');
+        container.classList.add('expand-compact');
       }
 
       var btn = document.createElement('button');
-      btn.className = 'mview-activation-btn';
-      btn.setAttribute('data-mview', 'true');
+      btn.className = 'expand-activation-btn';
+      btn.setAttribute('data-expand', 'true');
       var ariaLabels = { table: 'View table in lightbox', img: 'View image in lightbox' };
       btn.setAttribute('aria-label', ariaLabels[diagram.type] || 'View diagram in lightbox');
       btn.setAttribute('type', 'button');
@@ -334,8 +334,8 @@
       btn.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        if (typeof window.MViewLightbox !== 'undefined') {
-          window.MViewLightbox.openLightbox(diagram, btn);
+        if (typeof window.ExpandLightbox !== 'undefined') {
+          window.ExpandLightbox.openLightbox(diagram, btn);
         }
       });
 
@@ -371,10 +371,10 @@
   function cleanup() {
     stopObserver();
     stopViewscreenListener();
-    var buttons = document.querySelectorAll('[data-mview].mview-activation-btn');
+    var buttons = document.querySelectorAll('[data-expand].expand-activation-btn');
     buttons.forEach(function (btn) { btn.remove(); });
     // Unwrap shadow DOM wrappers
-    var wrappers = document.querySelectorAll('[data-mview-shadow-wrap]');
+    var wrappers = document.querySelectorAll('[data-expand-shadow-wrap]');
     wrappers.forEach(function (wrap) {
       while (wrap.firstChild) {
         wrap.parentNode.insertBefore(wrap.firstChild, wrap);
@@ -382,7 +382,7 @@
       wrap.remove();
     });
     // Unwrap image wrappers
-    var imgWrappers = document.querySelectorAll('[data-mview-img-wrap]');
+    var imgWrappers = document.querySelectorAll('[data-expand-img-wrap]');
     imgWrappers.forEach(function (wrap) {
       while (wrap.firstChild) {
         wrap.parentNode.insertBefore(wrap.firstChild, wrap);
@@ -390,7 +390,7 @@
       wrap.remove();
     });
     // Unwrap table wrappers
-    var tableWrappers = document.querySelectorAll('[data-mview-table-wrap]');
+    var tableWrappers = document.querySelectorAll('[data-expand-table-wrap]');
     tableWrappers.forEach(function (wrap) {
       while (wrap.firstChild) {
         wrap.parentNode.insertBefore(wrap.firstChild, wrap);
@@ -398,7 +398,7 @@
       wrap.remove();
     });
     // Unwrap SVG wrappers
-    var svgWrappers = document.querySelectorAll('[data-mview-svg-wrap]');
+    var svgWrappers = document.querySelectorAll('[data-expand-svg-wrap]');
     svgWrappers.forEach(function (wrap) {
       while (wrap.firstChild) {
         wrap.parentNode.insertBefore(wrap.firstChild, wrap);
@@ -417,7 +417,7 @@
   function listenForViewscreenDiagrams(callback) {
     if (viewscreenHandler) return; // already listening
     viewscreenHandler = function (e) {
-      if (!e.data || e.data.type !== 'mview-svg-ready') return;
+      if (!e.data || e.data.type !== 'expand-svg-ready') return;
       if (!e.data.svgHtml) return;
 
       // Match the message source to a viewscreen iframe on this page
@@ -440,7 +440,7 @@
       if (!container) return;
 
       // Skip if already has an activation button
-      if (container.querySelector('.mview-activation-btn')) return;
+      if (container.querySelector('.expand-activation-btn')) return;
 
       // Parse SVG safely via DOMParser (no script execution)
       var parser = new DOMParser();
@@ -477,7 +477,7 @@
     );
     iframes.forEach(function (iframe) {
       try {
-        iframe.contentWindow.postMessage({ type: 'mview-request-svg' }, '*');
+        iframe.contentWindow.postMessage({ type: 'expand-request-svg' }, '*');
       } catch (err) { /* iframe not yet loaded */ }
     });
   }
@@ -503,6 +503,6 @@
     module.exports = exports;
   }
   if (typeof window !== 'undefined') {
-    window.MViewDetector = exports;
+    window.ExpandDetector = exports;
   }
 })();

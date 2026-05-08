@@ -36,7 +36,7 @@
     if (!svg) return false;
     posted = true;
     window.parent.postMessage({
-      type: 'mview-svg-ready',
+      type: 'expand-svg-ready',
       svgHtml: svg.outerHTML
     }, '*');
     return true;
@@ -60,7 +60,7 @@
   // This handles the case where the parent's listener wasn't ready
   // when we first posted, so the parent pings us to re-send.
   window.addEventListener('message', function (e) {
-    if (e.data && e.data.type === 'mview-request-svg') {
+    if (e.data && e.data.type === 'expand-request-svg') {
       postSvg();
     }
   });

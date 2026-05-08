@@ -52,7 +52,7 @@
 
   function createSeparator() {
     var sep = document.createElement('div');
-    sep.className = 'mview-toolbar-separator';
+    sep.className = 'expand-toolbar-separator';
     sep.setAttribute('aria-hidden', 'true');
     return sep;
   }
@@ -63,46 +63,46 @@
     var isTable = contentType === 'table';
 
     var toolbar = document.createElement('div');
-    toolbar.className = 'mview-toolbar';
+    toolbar.className = 'expand-toolbar';
     toolbar.setAttribute('role', 'toolbar');
-    toolbar.setAttribute('data-mview', 'true');
+    toolbar.setAttribute('data-expand', 'true');
     var ariaLabels = { svg: 'Diagram viewer controls', img: 'Image viewer controls', table: 'Table viewer controls' };
     toolbar.setAttribute('aria-label', ariaLabels[contentType] || 'Viewer controls');
 
     // View buttons
-    toolbar.appendChild(createButton('Zoom in', 'mview-btn-zoom-in', 'icon-zoom-in', callbacks.onZoomIn));
-    toolbar.appendChild(createButton('Zoom out', 'mview-btn-zoom-out', 'icon-zoom-out', callbacks.onZoomOut));
-    toolbar.appendChild(createButton('Fit to screen', 'mview-btn-fit', 'icon-fit', callbacks.onFitToScreen));
+    toolbar.appendChild(createButton('Zoom in', 'expand-btn-zoom-in', 'icon-zoom-in', callbacks.onZoomIn));
+    toolbar.appendChild(createButton('Zoom out', 'expand-btn-zoom-out', 'icon-zoom-out', callbacks.onZoomOut));
+    toolbar.appendChild(createButton('Fit to screen', 'expand-btn-fit', 'icon-fit', callbacks.onFitToScreen));
 
     // Separator
     toolbar.appendChild(createSeparator());
 
     // Export buttons — vary by content type
     if (isTable) {
-      toolbar.appendChild(createButton('Copy as HTML', 'mview-btn-copy-html mview-btn-copy', 'icon-copy-html', callbacks.onCopyHtml || function () {}));
+      toolbar.appendChild(createButton('Copy as HTML', 'expand-btn-copy-html expand-btn-copy', 'icon-copy-html', callbacks.onCopyHtml || function () {}));
     }
-    toolbar.appendChild(createButton('Copy as PNG', 'mview-btn-copy' + (isTable ? ' mview-btn-copy-png' : ''), 'icon-copy', callbacks.onCopyPng));
-    toolbar.appendChild(createButton('Download as PNG', 'mview-btn-export-png', 'icon-export-png', callbacks.onExportPng));
+    toolbar.appendChild(createButton('Copy as PNG', 'expand-btn-copy' + (isTable ? ' expand-btn-copy-png' : ''), 'icon-copy', callbacks.onCopyPng));
+    toolbar.appendChild(createButton('Download as PNG', 'expand-btn-export-png', 'icon-export-png', callbacks.onExportPng));
     if (contentType === 'svg') {
-      toolbar.appendChild(createButton('Download as SVG', 'mview-btn-export-svg', 'icon-export-svg', callbacks.onExportSvg));
+      toolbar.appendChild(createButton('Download as SVG', 'expand-btn-export-svg', 'icon-export-svg', callbacks.onExportSvg));
     }
     if (isTable) {
-      toolbar.appendChild(createButton('Copy as JSON', 'mview-btn-copy-json mview-btn-copy', 'icon-copy-json', callbacks.onCopyJson || function () {}));
-      toolbar.appendChild(createButton('Copy as JSON (flat)', 'mview-btn-copy-json-flat mview-btn-copy', 'icon-copy-json-flat', callbacks.onCopyJsonFlat || function () {}));
+      toolbar.appendChild(createButton('Copy as JSON', 'expand-btn-copy-json expand-btn-copy', 'icon-copy-json', callbacks.onCopyJson || function () {}));
+      toolbar.appendChild(createButton('Copy as JSON (flat)', 'expand-btn-copy-json-flat expand-btn-copy', 'icon-copy-json-flat', callbacks.onCopyJsonFlat || function () {}));
     }
 
     // Separator before theme toggle
     toolbar.appendChild(createSeparator());
 
     // Theme toggle button — icon and label are updated dynamically
-    var themeBtn = createButton('Toggle dark mode', 'mview-btn-theme', 'icon-theme-auto', callbacks.onToggleTheme || function () {});
+    var themeBtn = createButton('Toggle dark mode', 'expand-btn-theme', 'icon-theme-auto', callbacks.onToggleTheme || function () {});
     toolbar.appendChild(themeBtn);
 
     // Separator before close
     toolbar.appendChild(createSeparator());
 
     // Close button
-    toolbar.appendChild(createButton('Close viewer', 'mview-btn-close', 'icon-close', callbacks.onClose));
+    toolbar.appendChild(createButton('Close viewer', 'expand-btn-close', 'icon-close', callbacks.onClose));
 
     return toolbar;
   }
@@ -113,7 +113,7 @@
    * @param {string|null} mode — 'dark', 'light', or null (auto)
    */
   function updateThemeButton(toolbar, mode) {
-    var btn = toolbar.querySelector('.mview-btn-theme');
+    var btn = toolbar.querySelector('.expand-btn-theme');
     if (!btn) return;
     var iconId, label;
     if (mode === 'dark') {
@@ -144,6 +144,6 @@
     module.exports = exports;
   }
   if (typeof window !== 'undefined') {
-    window.MViewToolbar = exports;
+    window.ExpandToolbar = exports;
   }
 })();

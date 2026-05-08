@@ -19,7 +19,7 @@ function loadDetector(win) {
   const scriptEl = win.document.createElement('script');
   scriptEl.textContent = code;
   win.document.head.appendChild(scriptEl);
-  return win.MViewDetector;
+  return win.ExpandDetector;
 }
 
 function mockRect(element, width, height) {
@@ -240,14 +240,14 @@ describe('scanForImages — images.html', () => {
     const results = detector.scanForImages();
     const ids = results.map((r) => r.imgElement.id);
     expect(ids).not.toContain('nav-logo');
-    expect(win.document.querySelector('[data-mview-img-wrap] #nav-logo')).toBeNull();
+    expect(win.document.querySelector('[data-expand-img-wrap] #nav-logo')).toBeNull();
   });
 
-  it('wraps images in a container with data-mview-img-wrap', () => {
+  it('wraps images in a container with data-expand-img-wrap', () => {
     const results = detector.scanForImages();
     results.forEach((r) => {
-      expect(r.container.hasAttribute('data-mview-img-wrap')).toBe(true);
-      expect(r.container.hasAttribute('data-mview')).toBe(true);
+      expect(r.container.hasAttribute('data-expand-img-wrap')).toBe(true);
+      expect(r.container.hasAttribute('data-expand')).toBe(true);
     });
   });
 
@@ -256,7 +256,7 @@ describe('scanForImages — images.html', () => {
     const second = detector.scanForImages();
     expect(second.length).toBe(0);
     // Wrappers from first scan still exist
-    const wrappers = win.document.querySelectorAll('[data-mview-img-wrap]');
+    const wrappers = win.document.querySelectorAll('[data-expand-img-wrap]');
     expect(wrappers.length).toBe(first.length);
   });
 });
@@ -292,24 +292,24 @@ describe('scanForTables — tables.html', () => {
     });
   });
 
-  it('detects visible tables and skips hidden and data-mview internal', () => {
+  it('detects visible tables and skips hidden and data-expand internal', () => {
     const results = detector.scanForTables();
     // basic-table, no-thead-table, empty-headers are visible
-    // hidden-table (display:none) and mview-internal-table (inside data-mview) should be skipped
+    // hidden-table (display:none) and expand-internal-table (inside data-expand) should be skipped
     expect(results.length).toBe(3);
     const ids = results.map((r) => r.tableElement.id);
     expect(ids).toContain('basic-table');
     expect(ids).toContain('no-thead-table');
     expect(ids).toContain('empty-headers');
     expect(ids).not.toContain('hidden-table');
-    expect(ids).not.toContain('mview-internal-table');
+    expect(ids).not.toContain('expand-internal-table');
   });
 
-  it('wraps tables in a container with data-mview-table-wrap', () => {
+  it('wraps tables in a container with data-expand-table-wrap', () => {
     const results = detector.scanForTables();
     results.forEach((r) => {
-      expect(r.container.hasAttribute('data-mview-table-wrap')).toBe(true);
-      expect(r.container.hasAttribute('data-mview')).toBe(true);
+      expect(r.container.hasAttribute('data-expand-table-wrap')).toBe(true);
+      expect(r.container.hasAttribute('data-expand')).toBe(true);
       expect(r.container.tagName.toLowerCase()).toBe('div');
     });
   });
@@ -319,7 +319,7 @@ describe('scanForTables — tables.html', () => {
     const second = detector.scanForTables();
     expect(second.length).toBe(0);
     // Wrappers from first scan still exist
-    const wrappers = win.document.querySelectorAll('[data-mview-table-wrap]');
+    const wrappers = win.document.querySelectorAll('[data-expand-table-wrap]');
     expect(wrappers.length).toBe(first.length);
   });
 });

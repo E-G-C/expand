@@ -391,6 +391,6 @@
     module.exports = exports;
   }
   if (typeof window !== 'undefined') {
-    window.MViewExport = exports;
+    window.ExpandExport = exports;
   }
 })();

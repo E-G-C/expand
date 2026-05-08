@@ -154,7 +154,7 @@ expand/
 
 - Plain ES5 JavaScript (no transpiler, no build step)
 - No external dependencies in content scripts -- inline SVG icons, no CDN links
-- All injected DOM elements use `data-mview="true"` for identification and cleanup
+- All injected DOM elements use `data-expand="true"` for identification and cleanup
 - Use `AbortController` signal pattern for event listener cleanup
 - Test changes against the manual test pages in `tests/manual/test-pages/`
 

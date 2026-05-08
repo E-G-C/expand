@@ -1,7 +1,7 @@
 /* styles/lightbox.css — Expand extension styles */
 
 /* ── Overlay ─────────────────────────────────────── */
-.mview-overlay {
+.expand-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -13,7 +13,7 @@
   justify-content: center;
 }
 
-.mview-backdrop {
+.expand-backdrop {
   position: absolute;
   top: 0;
   left: 0;
@@ -22,7 +22,7 @@
 }
 
 /* ── Viewer container ────────────────────────────── */
-.mview-viewer {
+.expand-viewer {
   position: relative;
   width: 100%;
   height: 100%;
@@ -30,12 +30,12 @@
   cursor: grab;
 }
 
-.mview-viewer.mview-dragging {
+.expand-viewer.expand-dragging {
   cursor: grabbing;
 }
 
 /* ── Activation button ───────────────────────────── */
-.mview-activation-btn {
+.expand-activation-btn {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -58,23 +58,23 @@
 }
 
 /* Show activation button on hover — delayed to avoid blocking clicks.
-   Delay is controlled via --mview-hover-delay (default 0.7s). */
-*:hover > .mview-activation-btn {
+   Delay is controlled via --expand-hover-delay (default 0.7s). */
+*:hover > .expand-activation-btn {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition: opacity 0.2s ease var(--mview-hover-delay, 0.7s),
-              visibility 0s ease var(--mview-hover-delay, 0.7s);
+  transition: opacity 0.2s ease var(--expand-hover-delay, 0.7s),
+              visibility 0s ease var(--expand-hover-delay, 0.7s);
 }
 
-.mview-activation-btn:focus {
+.expand-activation-btn:focus {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
 
 /* ── Compact mode for small elements ─────────────── */
-.mview-compact > .mview-activation-btn {
+.expand-compact > .expand-activation-btn {
   top: 2px;
   right: 2px;
   width: 20px;
@@ -84,7 +84,7 @@
 }
 
 /* ── Toolbar ─────────────────────────────────────── */
-.mview-toolbar {
+.expand-toolbar {
   position: fixed;
   bottom: 24px;
   left: 50%;
@@ -97,7 +97,7 @@
   backdrop-filter: blur(8px);
 }
 
-.mview-toolbar button {
+.expand-toolbar button {
   position: relative;
   width: 36px;
   height: 36px;
@@ -112,7 +112,7 @@
 }
 
 /* ── Toolbar tooltips ───────────────────────────── */
-.mview-toolbar button::after {
+.expand-toolbar button::after {
   content: attr(aria-label);
   position: absolute;
   bottom: 100%;
@@ -129,106 +129,106 @@
   margin-bottom: 6px;
 }
 
-.mview-toolbar button:hover::after {
+.expand-toolbar button:hover::after {
   opacity: 1;
 }
 
-.mview-toolbar button svg {
+.expand-toolbar button svg {
   width: 20px;
   height: 20px;
 }
 
-.mview-toolbar button:hover {
+.expand-toolbar button:hover {
   opacity: 0.85;
 }
 
-.mview-toolbar button:focus-visible {
+.expand-toolbar button:focus-visible {
   outline: 2px solid #4A90D9;
   outline-offset: 2px;
 }
 
 /* Separator between view and export buttons */
-.mview-toolbar-separator {
+.expand-toolbar-separator {
   width: 1px;
   margin: 4px 4px;
   align-self: stretch;
 }
 
 /* Copy success feedback */
-.mview-btn-copy.mview-copy-success {
+.expand-btn-copy.expand-copy-success {
   background-color: #22c55e !important;
   transition: background-color 0.3s ease;
 }
 
 /* ── Dark theme ──────────────────────────────────── */
-.mview-theme-dark .mview-backdrop {
+.expand-theme-dark .expand-backdrop {
   background: #1e1e1e;
 }
 
-.mview-theme-dark .mview-activation-btn {
+.expand-theme-dark .expand-activation-btn {
   background: rgba(255, 255, 255, 0.15);
   color: #e6e6e6;
 }
 
-.mview-toolbar.mview-theme-dark {
+.expand-toolbar.expand-theme-dark {
   background: rgba(30, 30, 30, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.mview-toolbar.mview-theme-dark button {
+.expand-toolbar.expand-theme-dark button {
   background: transparent;
   color: #e6e6e6;
 }
 
-.mview-toolbar.mview-theme-dark button:hover {
+.expand-toolbar.expand-theme-dark button:hover {
   background: rgba(255, 255, 255, 0.12);
 }
 
-.mview-toolbar.mview-theme-dark .mview-toolbar-separator {
+.expand-toolbar.expand-theme-dark .expand-toolbar-separator {
   background: rgba(255, 255, 255, 0.15);
 }
 
-.mview-toolbar.mview-theme-dark button::after {
+.expand-toolbar.expand-theme-dark button::after {
   background: rgba(0, 0, 0, 0.85);
   color: #e6e6e6;
 }
 
 /* ── Light theme ─────────────────────────────────── */
-.mview-theme-light .mview-backdrop {
+.expand-theme-light .expand-backdrop {
   background: #ffffff;
 }
 
-.mview-theme-light .mview-activation-btn {
+.expand-theme-light .expand-activation-btn {
   background: rgba(0, 0, 0, 0.1);
   color: #1a1a1a;
 }
 
-.mview-toolbar.mview-theme-light {
+.expand-toolbar.expand-theme-light {
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(0, 0, 0, 0.12);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.mview-toolbar.mview-theme-light button {
+.expand-toolbar.expand-theme-light button {
   background: transparent;
   color: #1a1a1a;
 }
 
-.mview-toolbar.mview-theme-light button:hover {
+.expand-toolbar.expand-theme-light button:hover {
   background: rgba(0, 0, 0, 0.08);
 }
 
-.mview-toolbar.mview-theme-light .mview-toolbar-separator {
+.expand-toolbar.expand-theme-light .expand-toolbar-separator {
   background: rgba(0, 0, 0, 0.12);
 }
 
-.mview-toolbar.mview-theme-light button::after {
+.expand-toolbar.expand-theme-light button::after {
   background: rgba(50, 50, 50, 0.9);
   color: #fff;
 }
 
 /* ── Table in viewer ────────────────────────────── */
-.mview-viewer table {
+.expand-viewer table {
   cursor: inherit;
   user-select: none;
   -webkit-user-select: none;

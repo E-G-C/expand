@@ -13,7 +13,7 @@
     minImageSize: 64,
     minSvgArea: 2000
   };
-  var STORAGE_KEY = 'mviewSettings';
+  var STORAGE_KEY = 'expandSettings';
 
   function readNumber(stored, key, fallback) {
     var value = stored && stored[key] != null ? Number(stored[key]) : fallback;
@@ -52,6 +52,6 @@
     module.exports = exports;
   }
   if (typeof window !== 'undefined') {
-    window.MViewSettings = exports;
+    window.ExpandSettings = exports;
   }
 })();

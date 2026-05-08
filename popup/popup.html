@@ -5,52 +5,52 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="mview-popup">
+  <div class="expand-popup">
     <h1>Expand</h1>
-    <div class="mview-popup-section">
-      <label class="mview-toggle">
-        <span class="mview-toggle-label">Enable Expand</span>
+    <div class="expand-popup-section">
+      <label class="expand-toggle">
+        <span class="expand-toggle-label">Enable Expand</span>
         <input type="checkbox" id="toggle-enabled" checked>
       </label>
-      <label class="mview-range">
-        <span class="mview-range-label">Hover delay <span id="delay-value">0.7s</span></span>
+      <label class="expand-range">
+        <span class="expand-range-label">Hover delay <span id="delay-value">0.7s</span></span>
         <input type="range" id="range-hover-delay" min="0" max="2" step="0.1" value="0.7">
       </label>
     </div>
-    <div class="mview-popup-section" id="expand-dependent-controls">
-      <label class="mview-toggle">
-        <span class="mview-toggle-label">Enable diagrams</span>
+    <div class="expand-popup-section" id="expand-dependent-controls">
+      <label class="expand-toggle">
+        <span class="expand-toggle-label">Enable diagrams</span>
         <input type="checkbox" id="toggle-diagrams" checked>
       </label>
-      <label class="mview-number">
-        <span class="mview-number-label">Minimum diagram area</span>
+      <label class="expand-number">
+        <span class="expand-number-label">Minimum diagram area</span>
         <input type="number" id="threshold-diagram-area" min="0" step="100" value="0">
-        <span class="mview-number-unit">px^2</span>
+        <span class="expand-number-unit">px^2</span>
       </label>
-      <label class="mview-toggle">
-        <span class="mview-toggle-label">Enable images</span>
+      <label class="expand-toggle">
+        <span class="expand-toggle-label">Enable images</span>
         <input type="checkbox" id="toggle-images" checked>
       </label>
-      <label class="mview-number">
-        <span class="mview-number-label">Minimum image side</span>
+      <label class="expand-number">
+        <span class="expand-number-label">Minimum image side</span>
         <input type="number" id="threshold-image-size" min="0" step="1" value="64">
-        <span class="mview-number-unit">px</span>
+        <span class="expand-number-unit">px</span>
       </label>
-      <label class="mview-toggle">
-        <span class="mview-toggle-label">Enable SVGs</span>
+      <label class="expand-toggle">
+        <span class="expand-toggle-label">Enable SVGs</span>
         <input type="checkbox" id="toggle-svgs" checked>
       </label>
-      <label class="mview-number">
-        <span class="mview-number-label">Minimum SVG area</span>
+      <label class="expand-number">
+        <span class="expand-number-label">Minimum SVG area</span>
         <input type="number" id="threshold-svg-area" min="0" step="100" value="2000">
-        <span class="mview-number-unit">px^2</span>
+        <span class="expand-number-unit">px^2</span>
       </label>
-      <label class="mview-toggle">
-        <span class="mview-toggle-label">Enable tables</span>
+      <label class="expand-toggle">
+        <span class="expand-toggle-label">Enable tables</span>
         <input type="checkbox" id="toggle-tables" checked>
       </label>
     </div>
-    <p class="mview-hint">Changes apply immediately.</p>
+    <p class="expand-hint">Changes apply immediately.</p>
   </div>
   <script src="popup.js"></script>
 </body>

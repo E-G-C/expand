@@ -94,8 +94,8 @@
   function openLightbox(diagram, button) {
     if (open) closeLightbox();
 
-    var Viewport = window.MViewViewport;
-    var Theme = window.MViewTheme;
+    var Viewport = window.ExpandViewport;
+    var Theme = window.ExpandTheme;
 
     controller = new AbortController();
     activationSource = button;
@@ -106,19 +106,19 @@
 
     preferenceReady.then(function () {
     overlayEl = document.createElement('div');
-    overlayEl.className = 'mview-overlay';
-    overlayEl.setAttribute('data-mview', 'true');
+    overlayEl.className = 'expand-overlay';
+    overlayEl.setAttribute('data-expand', 'true');
 
     var theme = Theme.detectTheme();
     overlayEl.classList.add(Theme.getThemeClass(theme));
 
     var backdrop = document.createElement('div');
-    backdrop.className = 'mview-backdrop';
-    backdrop.setAttribute('data-mview', 'true');
+    backdrop.className = 'expand-backdrop';
+    backdrop.setAttribute('data-expand', 'true');
 
     var viewer = document.createElement('div');
-    viewer.className = 'mview-viewer';
-    viewer.setAttribute('data-mview', 'true');
+    viewer.className = 'expand-viewer';
+    viewer.setAttribute('data-expand', 'true');
 
     // Create content element (SVG clone, image, or table clone)
     var isImage = diagram.type === 'img';
@@ -127,8 +127,8 @@
     activeContentType = contentType;
     if (isTable) {
       contentEl = diagram.tableElement.cloneNode(true);
-      if (typeof window.MViewExport !== 'undefined' && window.MViewExport.inlineComputedStyles) {
-        window.MViewExport.inlineComputedStyles(diagram.tableElement, contentEl);
+      if (typeof window.ExpandExport !== 'undefined' && window.ExpandExport.inlineComputedStyles) {
+        window.ExpandExport.inlineComputedStyles(diagram.tableElement, contentEl);
       }
       // Reset width/height — inlineComputedStyles may have copied a fixed
       // width from the page context (e.g. "width: 980px" from width:100%).
@@ -143,7 +143,7 @@
     } else {
       contentEl = diagram.svgElement.cloneNode(true);
     }
-    contentEl.setAttribute('data-mview', 'true');
+    contentEl.setAttribute('data-expand', 'true');
     contentEl.style.position = 'absolute';
     contentEl.style.left = '50%';
     contentEl.style.top = '50%';
@@ -215,7 +215,7 @@
       dragMoved = false;
       startX = lastX = e.clientX;
       startY = lastY = e.clientY;
-      viewer.classList.add('mview-dragging');
+      viewer.classList.add('expand-dragging');
       e.preventDefault();
     }, { signal: controller.signal });
 
@@ -239,7 +239,7 @@
     document.addEventListener('mouseup', function () {
       if (!isDragging) return;
       isDragging = false;
-      viewer.classList.remove('mview-dragging');
+      viewer.classList.remove('expand-dragging');
       if (!dragMoved) closeLightbox();
     }, { signal: controller.signal });
 
@@ -261,18 +261,18 @@
     Theme.observeThemeChanges(function (newTheme) {
       if (!overlayEl) return;
       var cls = Theme.getThemeClass(newTheme);
-      overlayEl.classList.remove('mview-theme-dark', 'mview-theme-light');
+      overlayEl.classList.remove('expand-theme-dark', 'expand-theme-light');
       overlayEl.classList.add(cls);
       if (toolbarEl) {
-        toolbarEl.classList.remove('mview-theme-dark', 'mview-theme-light');
+        toolbarEl.classList.remove('expand-theme-dark', 'expand-theme-light');
         toolbarEl.classList.add(cls);
       }
     });
 
     // Toolbar (T018/T019) — created if toolbar module is available
-    if (typeof window.MViewToolbar !== 'undefined') {
+    if (typeof window.ExpandToolbar !== 'undefined') {
       var sourceElement = isTable ? diagram.tableElement : (isImage ? diagram.imgElement : diagram.svgElement);
-      var toolbar = window.MViewToolbar.createToolbar({
+      var toolbar = window.ExpandToolbar.createToolbar({
         onZoomIn: function () {
           viewerState = Viewport.zoomByStep(viewerState, 1);
           applyTransform();
@@ -286,12 +286,12 @@
           applyTransform();
         },
         onCopyPng: function () {
-          if (typeof window.MViewExport !== 'undefined') {
-            window.MViewExport.copyPngToClipboard(sourceElement, viewerState.scale).then(function () {
-              var btn = toolbar.querySelector('.mview-btn-copy');
+          if (typeof window.ExpandExport !== 'undefined') {
+            window.ExpandExport.copyPngToClipboard(sourceElement, viewerState.scale).then(function () {
+              var btn = toolbar.querySelector('.expand-btn-copy');
               if (btn) {
-                btn.classList.add('mview-copy-success');
-                setTimeout(function () { btn.classList.remove('mview-copy-success'); }, 1000);
+                btn.classList.add('expand-copy-success');
+                setTimeout(function () { btn.classList.remove('expand-copy-success'); }, 1000);
               }
             }).catch(function (err) {
               console.error('Expand: clipboard copy failed', err);
@@ -299,17 +299,17 @@
           }
         },
         onExportPng: function () {
-          if (typeof window.MViewExport !== 'undefined') {
+          if (typeof window.ExpandExport !== 'undefined') {
             if (isTable) {
-              window.MViewExport.downloadTablePng(sourceElement, undefined, viewerState.scale).catch(function (err) {
+              window.ExpandExport.downloadTablePng(sourceElement, undefined, viewerState.scale).catch(function (err) {
                 console.error('Expand: table PNG export failed', err);
               });
             } else if (isImage) {
-              window.MViewExport.downloadImage(sourceElement).catch(function (err) {
+              window.ExpandExport.downloadImage(sourceElement).catch(function (err) {
                 console.error('Expand: image download failed', err);
               });
             } else {
-              window.MViewExport.downloadPng(sourceElement, undefined, viewerState.scale).catch(function (err) {
+              window.ExpandExport.downloadPng(sourceElement, undefined, viewerState.scale).catch(function (err) {
                 console.error('Expand: PNG export failed', err);
               });
             }
@@ -317,20 +317,20 @@
         },
         onExportSvg: function () {
           if (isImage || isTable) return;
-          if (typeof window.MViewExport !== 'undefined') {
-            window.MViewExport.downloadSvg(sourceElement).catch(function (err) {
+          if (typeof window.ExpandExport !== 'undefined') {
+            window.ExpandExport.downloadSvg(sourceElement).catch(function (err) {
               console.error('Expand: SVG export failed', err);
             });
           }
         },
         onCopyHtml: function () {
           if (!isTable) return;
-          if (typeof window.MViewExport !== 'undefined') {
-            window.MViewExport.copyHtmlToClipboard(sourceElement).then(function () {
-              var btn = toolbar.querySelector('.mview-btn-copy-html');
+          if (typeof window.ExpandExport !== 'undefined') {
+            window.ExpandExport.copyHtmlToClipboard(sourceElement).then(function () {
+              var btn = toolbar.querySelector('.expand-btn-copy-html');
               if (btn) {
-                btn.classList.add('mview-copy-success');
-                setTimeout(function () { btn.classList.remove('mview-copy-success'); }, 1000);
+                btn.classList.add('expand-copy-success');
+                setTimeout(function () { btn.classList.remove('expand-copy-success'); }, 1000);
               }
             }).catch(function (err) {
               console.error('Expand: HTML copy failed', err);
@@ -339,12 +339,12 @@
         },
         onCopyJson: function () {
           if (!isTable) return;
-          if (typeof window.MViewExport !== 'undefined') {
-            window.MViewExport.copyJsonToClipboard(sourceElement).then(function () {
-              var btn = toolbar.querySelector('.mview-btn-copy-json');
+          if (typeof window.ExpandExport !== 'undefined') {
+            window.ExpandExport.copyJsonToClipboard(sourceElement).then(function () {
+              var btn = toolbar.querySelector('.expand-btn-copy-json');
               if (btn) {
-                btn.classList.add('mview-copy-success');
-                setTimeout(function () { btn.classList.remove('mview-copy-success'); }, 1000);
+                btn.classList.add('expand-copy-success');
+                setTimeout(function () { btn.classList.remove('expand-copy-success'); }, 1000);
               }
             }).catch(function (err) {
               console.error('Expand: JSON copy failed', err);
@@ -353,12 +353,12 @@
         },
         onCopyJsonFlat: function () {
           if (!isTable) return;
-          if (typeof window.MViewExport !== 'undefined') {
-            window.MViewExport.copyJsonFlatToClipboard(sourceElement).then(function () {
-              var btn = toolbar.querySelector('.mview-btn-copy-json-flat');
+          if (typeof window.ExpandExport !== 'undefined') {
+            window.ExpandExport.copyJsonFlatToClipboard(sourceElement).then(function () {
+              var btn = toolbar.querySelector('.expand-btn-copy-json-flat');
               if (btn) {
-                btn.classList.add('mview-copy-success');
-                setTimeout(function () { btn.classList.remove('mview-copy-success'); }, 1000);
+                btn.classList.add('expand-copy-success');
+                setTimeout(function () { btn.classList.remove('expand-copy-success'); }, 1000);
               }
             }).catch(function (err) {
               console.error('Expand: JSON flat copy failed', err);
@@ -377,18 +377,18 @@
           // Re-detect and apply theme
           var newTheme = Theme.detectTheme();
           var cls = Theme.getThemeClass(newTheme);
-          overlayEl.classList.remove('mview-theme-dark', 'mview-theme-light');
+          overlayEl.classList.remove('expand-theme-dark', 'expand-theme-light');
           overlayEl.classList.add(cls);
           if (toolbarEl) {
-            toolbarEl.classList.remove('mview-theme-dark', 'mview-theme-light');
+            toolbarEl.classList.remove('expand-theme-dark', 'expand-theme-light');
             toolbarEl.classList.add(cls);
-            window.MViewToolbar.updateThemeButton(toolbarEl, next);
+            window.ExpandToolbar.updateThemeButton(toolbarEl, next);
           }
         }
       }, { contentType: contentType });
       toolbar.classList.add(Theme.getThemeClass(theme));
       // Set initial theme button state
-      window.MViewToolbar.updateThemeButton(toolbar, Theme.getDarkModeOverride());
+      window.ExpandToolbar.updateThemeButton(toolbar, Theme.getDarkModeOverride());
       toolbarEl = toolbar;
       // Toolbar appended to body so SVG stacking context can never overlap it
       document.body.appendChild(toolbar);
@@ -413,8 +413,8 @@
       resizeObserver = null;
     }
 
-    if (typeof window.MViewTheme !== 'undefined') {
-      window.MViewTheme.stopObserving();
+    if (typeof window.ExpandTheme !== 'undefined') {
+      window.ExpandTheme.stopObserving();
     }
 
     // Remove overlay and toolbar from body
@@ -443,10 +443,10 @@
 
   // Initialization — detect diagrams and inject buttons
   function init() {
-    var Detector = window.MViewDetector;
+    var Detector = window.ExpandDetector;
     if (!Detector) return;
 
-    var Settings = window.MViewSettings;
+    var Settings = window.ExpandSettings;
     var settingsReady = Settings
       ? Settings.loadSettings()
       : Promise.resolve({
@@ -551,15 +551,15 @@
 
   function applyHoverDelay(delay) {
     var val = (delay != null ? delay : 0.7) + 's';
-    document.documentElement.style.setProperty('--mview-hover-delay', val);
+    document.documentElement.style.setProperty('--expand-hover-delay', val);
   }
 
   function removeButtonsAndWrappers() {
     // Remove all activation buttons
-    var buttons = document.querySelectorAll('[data-mview].mview-activation-btn');
+    var buttons = document.querySelectorAll('[data-expand].expand-activation-btn');
     buttons.forEach(function (btn) { btn.remove(); });
     // Unwrap image wrappers
-    var imgWrappers = document.querySelectorAll('[data-mview-img-wrap]');
+    var imgWrappers = document.querySelectorAll('[data-expand-img-wrap]');
     imgWrappers.forEach(function (wrap) {
       while (wrap.firstChild) {
         wrap.parentNode.insertBefore(wrap.firstChild, wrap);
@@ -567,7 +567,7 @@
       wrap.remove();
     });
     // Unwrap table wrappers
-    var tableWrappers = document.querySelectorAll('[data-mview-table-wrap]');
+    var tableWrappers = document.querySelectorAll('[data-expand-table-wrap]');
     tableWrappers.forEach(function (wrap) {
       while (wrap.firstChild) {
         wrap.parentNode.insertBefore(wrap.firstChild, wrap);
@@ -575,7 +575,7 @@
       wrap.remove();
     });
     // Unwrap SVG wrappers
-    var svgWrappers = document.querySelectorAll('[data-mview-svg-wrap]');
+    var svgWrappers = document.querySelectorAll('[data-expand-svg-wrap]');
     svgWrappers.forEach(function (wrap) {
       while (wrap.firstChild) {
         wrap.parentNode.insertBefore(wrap.firstChild, wrap);
@@ -588,8 +588,8 @@
     var storage = typeof chrome !== 'undefined' && chrome.storage;
     if (!storage || !storage.onChanged) return;
     storage.onChanged.addListener(function (changes, area) {
-      if (area !== 'local' || !changes.mviewSettings) return;
-      var newVal = changes.mviewSettings.newValue || {};
+      if (area !== 'local' || !changes.expandSettings) return;
+      var newVal = changes.expandSettings.newValue || {};
       activeSettings = {
         diagrams: newVal.diagrams !== false,
         images: newVal.images !== false,
@@ -632,6 +632,6 @@
     module.exports = exports;
   }
   if (typeof window !== 'undefined') {
-    window.MViewLightbox = exports;
+    window.ExpandLightbox = exports;
   }
 })();

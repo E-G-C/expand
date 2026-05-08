@@ -65,7 +65,7 @@
   }
 
   function getThemeClass(theme) {
-    return theme.mode === 'dark' ? 'mview-theme-dark' : 'mview-theme-light';
+    return theme.mode === 'dark' ? 'expand-theme-dark' : 'expand-theme-light';
   }
 
   function observeThemeChanges(callback) {
@@ -109,7 +109,7 @@
     // Persist to extension storage when available
     var storage = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
     if (storage) {
-      storage.set({ mviewDarkMode: mode });
+      storage.set({ expandDarkMode: mode });
     }
   }
 
@@ -130,8 +130,8 @@
       return Promise.resolve(null);
     }
     return new Promise(function (resolve) {
-      storage.get('mviewDarkMode', function (result) {
-        var mode = result && result.mviewDarkMode != null ? result.mviewDarkMode : null;
+      storage.get('expandDarkMode', function (result) {
+        var mode = result && result.expandDarkMode != null ? result.expandDarkMode : null;
         darkModeOverride = mode;
         resolve(mode);
       });
@@ -152,6 +152,6 @@
     module.exports = exports;
   }
   if (typeof window !== 'undefined') {
-    window.MViewTheme = exports;
+    window.ExpandTheme = exports;
   }
 })();

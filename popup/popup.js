@@ -13,7 +13,7 @@
     minImageSize: 64,
     minSvgArea: 2000
   };
-  var STORAGE_KEY = 'mviewSettings';
+  var STORAGE_KEY = 'expandSettings';
 
   var toggleDiagrams = document.getElementById('toggle-diagrams');
   var toggleImages = document.getElementById('toggle-images');
@@ -36,7 +36,7 @@
     var disabled = !toggleEnabled.checked;
     dependentControls.classList.toggle('is-disabled', disabled);
     rangeHoverDelay.disabled = disabled;
-    rangeHoverDelay.closest('.mview-range').classList.toggle('is-disabled', disabled);
+    rangeHoverDelay.closest('.expand-range').classList.toggle('is-disabled', disabled);
     dependentControls.querySelectorAll('input').forEach(function (input) {
       input.disabled = disabled;
     });
@@ -47,7 +47,7 @@
     ].forEach(function (item) {
       var inputDisabled = disabled || !item.toggle.checked;
       item.input.disabled = inputDisabled;
-      item.input.closest('.mview-number').classList.toggle('is-disabled', !disabled && inputDisabled);
+      item.input.closest('.expand-number').classList.toggle('is-disabled', !disabled && inputDisabled);
     });
   }
 
