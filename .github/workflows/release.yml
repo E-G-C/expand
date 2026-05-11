@@ -1,4 +1,4 @@
-name: Release Edge Extension
+name: Release Store Packages
 
 on:
   push:
@@ -15,12 +15,12 @@ permissions:
   contents: write
 
 concurrency:
-  group: edge-release-${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
+  group: release-${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
-  package-edge:
-    name: Package Edge extension
+  package-store:
+    name: Package store zips
     runs-on: ubuntu-latest
 
     steps:
@@ -57,7 +57,7 @@ jobs:
           IFS='.' read -r major minor patch <<< "$version"
           for part in "$major" "$minor" "$patch"; do
             if (( part > 65535 )); then
-              echo "Edge manifest version segment '$part' must be 65535 or lower." >&2
+              echo "Manifest version segment '$part' must be 65535 or lower." >&2
               exit 1
             fi
           done
@@ -73,61 +73,86 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: npm version "$VERSION" --no-git-tag-version --allow-same-version
 
-      - name: Package Edge zip
-        id: package
+      - name: Package store zips
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
 
-          zip_path="dist/expand-edge-${VERSION}.zip"
-          npm run package:edge -- --version "$VERSION" --output "$zip_path"
+          npm run package:edge -- --version "$VERSION" --output "dist/expand-edge-${VERSION}.zip"
+          npm run package:chrome -- --version "$VERSION" --output "dist/expand-chrome-${VERSION}.zip"
+          npm run package:firefox -- --version "$VERSION" --output "dist/expand-firefox-${VERSION}.zip"
 
-          echo "zip_path=$zip_path" >> "$GITHUB_OUTPUT"
-          echo "zip_name=$(basename "$zip_path")" >> "$GITHUB_OUTPUT"
+      - name: Verify package set
+        id: package_set
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
 
-      - name: Upload workflow artifact
+          package_paths=(
+            "dist/expand-edge-${VERSION}.zip"
+            "dist/expand-chrome-${VERSION}.zip"
+            "dist/expand-firefox-${VERSION}.zip"
+          )
+
+          for package_path in "${package_paths[@]}"; do
+            if [[ ! -f "$package_path" ]]; then
+              echo "Missing package output: $package_path" >&2
+              exit 1
+            fi
+          done
+
+          {
+            echo "artifact_name=expand-store-packages-${VERSION}"
+            echo "edge_path=${package_paths[0]}"
+            echo "chrome_path=${package_paths[1]}"
+            echo "firefox_path=${package_paths[2]}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.package.outputs.zip_name }}
-          path: ${{ steps.package.outputs.zip_path }}
+          name: ${{ steps.package_set.outputs.artifact_name }}
+          path: |
+            ${{ steps.package_set.outputs.edge_path }}
+            ${{ steps.package_set.outputs.chrome_path }}
+            ${{ steps.package_set.outputs.firefox_path }}
           if-no-files-found: error
 
-      - name: Publish GitHub Release asset
+      - name: Publish GitHub Release assets
         if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.version.outputs.tag }}
           RELEASE_VERSION: ${{ steps.version.outputs.version }}
-          ZIP_PATH: ${{ steps.package.outputs.zip_path }}
         run: |
           set -euo pipefail
 
+          package_paths=(
+            "dist/expand-edge-${RELEASE_VERSION}.zip"
+            "dist/expand-chrome-${RELEASE_VERSION}.zip"
+            "dist/expand-firefox-${RELEASE_VERSION}.zip"
+          )
+
+          for package_path in "${package_paths[@]}"; do
+            if [[ ! -f "$package_path" ]]; then
+              echo "Missing package output before release publication: $package_path" >&2
+              exit 1
+            fi
+          done
+
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" "$ZIP_PATH" --clobber
+            gh release upload "$RELEASE_TAG" "${package_paths[@]}" --clobber
           else
-            gh release create "$RELEASE_TAG" "$ZIP_PATH" \
+            gh release create "$RELEASE_TAG" "${package_paths[@]}" \
               --title "Expand ${RELEASE_VERSION}" \
               --generate-notes
           fi
 
-      - name: Record Edge publishing placeholders
-        run: |
-          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-          ## Edge Add-ons publishing placeholders
-
-          The workflow currently publishes a GitHub Release zip for manual Edge Add-ons upload. Before adding automated store submission, configure and document these repository secrets or environment variables:
-
-          - EDGE_ADDONS_PRODUCT_ID
-          - EDGE_ADDONS_CLIENT_ID
-          - EDGE_ADDONS_CLIENT_SECRET
-          - EDGE_ADDONS_TENANT_ID, if your Edge Add-ons API auth flow requires it
-          - EDGE_ADDONS_SUBMIT_FOR_REVIEW, if automatic submission should be gated separately from upload
-          EOF
-
   version-writeback:
     name: Write version back to main
-    needs: package-edge
+    needs: package-store
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
@@ -145,10 +170,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
 
       - name: Derive version from tag
         id: version
@@ -159,22 +180,37 @@ jobs:
           version="${TAG_NAME#v}"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Update package.json and package-lock.json
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: npm version "$VERSION" --no-git-tag-version --allow-same-version
-
-      - name: Update manifest.json
+      - name: Sync version files
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
-          node -e "
+
+          node <<'NODE'
             const fs = require('fs');
-            const m = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
-            m.version = process.env.VERSION;
-            fs.writeFileSync('manifest.json', JSON.stringify(m, null, 2) + '\n');
-          "
+            const version = process.env.VERSION;
+
+            const updateJson = (filePath, update) => {
+              const json = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+              update(json);
+              fs.writeFileSync(filePath, `${JSON.stringify(json, null, 2)}\n`);
+            };
+
+            updateJson('package.json', (manifest) => {
+              manifest.version = version;
+            });
+
+            updateJson('package-lock.json', (lockfile) => {
+              lockfile.version = version;
+              if (lockfile.packages && lockfile.packages['']) {
+                lockfile.packages[''].version = version;
+              }
+            });
+
+            updateJson('manifest.json', (manifest) => {
+              manifest.version = version;
+            });
+          NODE
 
       - name: Commit and push version sync
         env:

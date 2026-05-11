@@ -9,20 +9,33 @@ const VERSION_NEEDED = 20;
 const VERSION_MADE_BY = 0x0314;
 const FILE_MODE = (0o100644 << 16) >>> 0;
 const CRC_TABLE = createCrcTable();
+const TARGETS = {
+  edge: {
+    transformManifest: removeFirefoxOnlySettings,
+  },
+  chrome: {
+    transformManifest: removeFirefoxOnlySettings,
+  },
+  firefox: {
+    transformManifest: keepFirefoxSettings,
+  },
+};
+const SUPPORTED_TARGETS = Object.keys(TARGETS);
 
 const options = parseArgs(process.argv.slice(2));
 const sourceDir = path.resolve(options.sourceDir || process.cwd());
+const targetConfig = TARGETS[options.target];
 
-if (options.target !== 'edge') {
-  throw new Error(`Unsupported target "${options.target}". The only release target currently configured is "edge".`);
+if (!targetConfig) {
+  throw new Error(`Unsupported target "${options.target}". Supported targets: ${SUPPORTED_TARGETS.join(', ')}.`);
 }
 
 const sourceManifestPath = path.join(sourceDir, 'manifest.json');
 const sourceManifest = JSON.parse(await readFile(sourceManifestPath, 'utf8'));
-const manifest = buildManifest(sourceManifest, options);
+const manifest = buildManifest(sourceManifest, options, targetConfig);
 const version = manifest.version;
 
-validateEdgeVersion(version);
+validateManifestVersion(version);
 validateManifestShape(manifest);
 
 const outputPath = path.resolve(
@@ -73,19 +86,19 @@ function parseArgs(args) {
   return parsed;
 }
 
-function buildManifest(sourceManifest, options) {
+function buildManifest(sourceManifest, options, targetConfig) {
   const manifest = JSON.parse(JSON.stringify(sourceManifest));
 
   if (options.version) {
     manifest.version = options.version;
   }
 
-  if (options.target === 'edge') {
-    removeFirefoxOnlySettings(manifest);
-  }
+  targetConfig.transformManifest(manifest);
 
   return manifest;
 }
+
+function keepFirefoxSettings() {}
 
 function removeFirefoxOnlySettings(manifest) {
   if (!manifest.browser_specific_settings) {
@@ -113,18 +126,18 @@ function validateManifestShape(manifest) {
   }
 }
 
-function validateEdgeVersion(version) {
+function validateManifestVersion(version) {
   const partPattern = '(0|[1-9][0-9]*)';
   const versionPattern = new RegExp(`^${partPattern}(\\.${partPattern}){0,3}$`);
 
   if (!versionPattern.test(version)) {
-    throw new Error(`Edge manifest version "${version}" must be one to four dot-separated integers without prerelease labels.`);
+    throw new Error(`Manifest version "${version}" must be one to four dot-separated integers without prerelease labels.`);
   }
 
   for (const part of version.split('.')) {
     const value = Number(part);
     if (value > 65535) {
-      throw new Error(`Edge manifest version segment "${part}" must be 65535 or lower.`);
+      throw new Error(`Manifest version segment "${part}" must be 65535 or lower.`);
     }
   }
 }

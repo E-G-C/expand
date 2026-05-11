@@ -45,26 +45,41 @@ Flowchart, sequence, class, state, gantt, pie, ER, journey, git graph, mindmap, 
 
 Package the extension first (see below), then:
 
+Choose the target-specific generated zip for the browser or store: `expand-edge-<version>.zip`, `expand-chrome-<version>.zip`, or `expand-firefox-<version>.zip`.
+
+**Microsoft Edge / Chrome:**
+1. Go to `edge://extensions/` or `chrome://extensions/`
+2. Enable "Developer mode"
+3. Unzip the Edge or Chrome package
+4. Click "Load unpacked" and select the extracted folder
+
 **Firefox:**
 1. Go to `about:addons`
 2. Click the gear icon -> "Install Add-on From File..."
-3. Select the generated zip for that browser target
+3. Select `expand-firefox-<version>.zip`
 
 
 
 ### Packaging the zip
 
-The zip needs only the runtime files, not the development files. The Edge package command writes a target-specific manifest into the zip without changing the source `manifest.json`:
+The zip needs only the runtime files, not the development files. Edge, Chrome, and Firefox package commands write target-specific manifests into the zips without changing the source `manifest.json`:
 
 ```bash
 npm run package:edge
+npm run package:chrome
+npm run package:firefox
+
 npm run package:edge -- --version 1.2.3 --output dist/expand-edge-1.2.3.zip
+npm run package:chrome -- --version 1.2.3 --output dist/expand-chrome-1.2.3.zip
+npm run package:firefox -- --version 1.2.3 --output dist/expand-firefox-1.2.3.zip
 ```
 
-The package contains:
+Use the target-specific generated zip for the browser or store: `expand-edge-...`, `expand-chrome-...`, or `expand-firefox-...`.
+
+Each package contains:
 
 ```
-expand-edge-<version>.zip
+expand-<target>-<version>.zip
   manifest.json
   content/
     detector.js
@@ -90,14 +105,14 @@ expand-edge-<version>.zip
 
 ## Release Pipeline
 
-GitHub Actions publishes the Microsoft Edge zip when a `vMAJOR.MINOR.PATCH` tag is pushed:
+GitHub Actions publishes Edge, Chrome, and Firefox zips when a shared `vMAJOR.MINOR.PATCH` tag is pushed:
 
 ```bash
 git tag v1.2.3
 git push origin v1.2.3
 ```
 
-The workflow runs tests, normalizes the npm package version from the tag in the runner workspace, stamps the packaged manifest with the same Edge-valid version, uploads a workflow artifact, and attaches the zip to the GitHub Release. Edge Add-ons store publishing is documented in [docs/release.md](docs/release.md) and remains manual until the required publishing secrets are configured.
+The workflow runs tests, normalizes the npm package version from the tag in the runner workspace, packages all three targets, uploads workflow artifacts, and attaches the zips to the GitHub Release. Store publishing remains manual for Microsoft Edge Add-ons, Chrome Web Store, and Mozilla Add-ons; see [docs/release.md](docs/release.md) for release rules and upload details. Safari packaging is deferred.
 
 ## How it works
 

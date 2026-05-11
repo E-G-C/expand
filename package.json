@@ -1,6 +1,6 @@
 {
   "name": "expand",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -9,6 +9,8 @@
   },
   "scripts": {
     "package:edge": "node scripts/package-extension.mjs --target edge",
+    "package:chrome": "node scripts/package-extension.mjs --target chrome",
+    "package:firefox": "node scripts/package-extension.mjs --target firefox",
     "test": "vitest run"
   },
   "repository": {
