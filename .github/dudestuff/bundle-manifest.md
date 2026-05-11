@@ -6,8 +6,8 @@ This file pins the upstream Dude bundle version associated with the current inst
 {
   "source_repo": "https://github.com/E-G-C/dude",
   "source_ref": "main",
-  "installed_sha": "c706b0b2a1e0caf69bba31e4bf4517808ad682a3",
-  "installed_at": "2026-05-09T00:00:00Z",
+  "installed_sha": "266f891036a7342643763ff32926f552fdf937ce",
+  "installed_at": "2026-05-11T00:32:05.663Z",
   "bundle_version": "0.2.0",
   "files": {
     ".github/agents/dude.agent.md": "36fdc70b8b87de8c67d4d3ee3f4d4cc8086f5e2b5bc37ba491a3e00e622d8fa0",
@@ -26,9 +26,9 @@ This file pins the upstream Dude bundle version associated with the current inst
     ".github/skills/dude-generic-routing/SKILL.md": "400619a04b8e9c3ef06ef06252fc8fac9733bfd739f1bc4219ffe1c6af1b7e6f",
     ".github/skills/dude-learning-promotion/SKILL.md": "c1c43b8ed3cf66829431fa13636755bdf3edfdf941db7189d7c15f322787d754",
     ".github/skills/dude-lightweight-execution/SKILL.md": "afb9aafa5e6a06e1785b1fd5861fd2c1f362dd7f397c2c2870e7de2072438abf",
-    ".github/skills/dude-lint/lint.ps1": "774584f6f8f77658382178bc01a180393f10febb961309ad039575e7d804fd34",
-    ".github/skills/dude-lint/lint.sh": "db2868ebabc37922cc0dea99d60d8c5027e10368d507e5ff228286aa6764ca98",
-    ".github/skills/dude-lint/SKILL.md": "68ade3f7aa93a31a6417fd5942409c1f5e6807c418798b094cc9413402e37925",
+    ".github/skills/dude-lint/lint.ps1": "4293eef6f3ff4e8f9219b86d6c527cac28e1b48020c3068167865dd640d5f621",
+    ".github/skills/dude-lint/lint.sh": "58c9ad50a94b31d7146d2bd6ebe7ad65561d522261ef1253dc94775c3da6ef49",
+    ".github/skills/dude-lint/SKILL.md": "e34984e13730823f7ecff98d352136f66cd49388720f3b03fc51a4cba7213663",
     ".github/skills/dude-memory-ledger/SKILL.md": "f5fc50f79ce1d8c1f2892a37478f76b18c91056f61cb323e1841727cc8cfe1c4",
     ".github/skills/dude-parallel-dispatch/SKILL.md": "2a8d3f4f7430437eaf39f81da59adb3fd9d99e8ddfe0e7d4dc44610bf00e212c",
     ".github/skills/dude-portability/SKILL.md": "c164e426e45ea739c5fb0c5490ab207f46290c063c0022e754be38e8d02287c3",
@@ -47,7 +47,14 @@ This file pins the upstream Dude bundle version associated with the current inst
     ".github/skills/dude-verification-before-completion/SKILL.md": "7802742019d6b99ea2504a71c180a22cf2c886b0133bdf9aa964a1048ae67163",
     ".github/skills/dude-work-intake/SKILL.md": "397160f9387fd0e546a800a5a6def7d0e5e14a93383d59d353d78ef6d2be5289"
   },
-  "local_overrides": {}
+  "local_overrides": {
+    ".github/skills/dude-bundle-upgrade/SKILL.md": {
+      "base_sha256": "7533d59d222d506ad2777c213eb4159eb7787273fd4d1373f36b6ebc623d6a5b",
+      "current_sha256": "cf4ea12799a9b05439df724574df0a65a5a3a600b24d1f8cba8e952cff7963d4",
+      "reason": "kept local coordinator customization during upgrade",
+      "accepted_at": "2026-05-11T00:32:05.668Z"
+    }
+  }
 }
 ```
 
