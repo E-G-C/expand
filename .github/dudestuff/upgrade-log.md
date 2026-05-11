@@ -38,3 +38,19 @@ Append-only history of `@dude upgrade` events, conflict resolutions, and rollbac
 - preserved:
   - .github/dudestuff/ (except bundle-manifest.md and upgrade-log.md)
   - brainstorm/, specs/, and repository source files
+
+## 2026-05-11T01:57:34.865Z
+
+- from: 266f891036a7342643763ff32926f552fdf937ce
+- to: 437bbffe46912633b52d318874c9ec75b8b5504a
+- safety_tag: dude-pre-upgrade-20260510-215734
+- upgrade_branch: chore/dude-upgrade-437bbffe
+- replaced: 0
+- added: 0
+- removed: 0
+- conflicts:
+  - .github/skills/dude-bundle-upgrade/SKILL.md => keep mine
+- deferred: 0
+- preserved:
+  - .github/dudestuff/ (except bundle-manifest.md and upgrade-log.md)
+  - brainstorm/, specs/, and repository source files
