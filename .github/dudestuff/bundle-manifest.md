@@ -6,8 +6,8 @@ This file pins the upstream Dude bundle version associated with the current inst
 {
   "source_repo": "https://github.com/E-G-C/dude",
   "source_ref": "main",
-  "installed_sha": "266f891036a7342643763ff32926f552fdf937ce",
-  "installed_at": "2026-05-11T00:32:05.663Z",
+  "installed_sha": "437bbffe46912633b52d318874c9ec75b8b5504a",
+  "installed_at": "2026-05-11T01:57:34.865Z",
   "bundle_version": "0.2.0",
   "files": {
     ".github/agents/dude.agent.md": "36fdc70b8b87de8c67d4d3ee3f4d4cc8086f5e2b5bc37ba491a3e00e622d8fa0",
@@ -52,7 +52,7 @@ This file pins the upstream Dude bundle version associated with the current inst
       "base_sha256": "7533d59d222d506ad2777c213eb4159eb7787273fd4d1373f36b6ebc623d6a5b",
       "current_sha256": "cf4ea12799a9b05439df724574df0a65a5a3a600b24d1f8cba8e952cff7963d4",
       "reason": "kept local coordinator customization during upgrade",
-      "accepted_at": "2026-05-11T00:32:05.668Z"
+      "accepted_at": "2026-05-11T01:57:34.859Z"
     }
   }
 }
